@@ -426,6 +426,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
                 case SymbolKind.Parameter:
                 case SymbolKind.Property:
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                     return true;
             }
 

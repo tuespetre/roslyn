@@ -82,6 +82,8 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
                         return CombineHashCodes((IPointerTypeSymbol)x, currentHash);
                     case SymbolKind.Property:
                         return CombineHashCodes((IPropertySymbol)x, currentHash);
+                    case SymbolKind.QueryConclusionVariable:
+                        return CombineHashCodes((IQueryConclusionVariableSymbol)x, currentHash);
                     case SymbolKind.RangeVariable:
                         return CombineHashCodes((IRangeVariableSymbol)x, currentHash);
                     case SymbolKind.TypeParameter:
@@ -311,6 +313,11 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
 
                 return
                     GetHashCode(x.ContainingSymbol, currentHash);
+            }
+
+            private int CombineHashCodes(IQueryConclusionVariableSymbol x, int currentHash)
+            {
+                return Hash.Combine(x.Locations.FirstOrDefault(), currentHash);
             }
 
             private int CombineHashCodes(IRangeVariableSymbol x, int currentHash)

@@ -82,12 +82,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Note that a variable is read.
         /// </summary>
         /// <param name="variable">The variable</param>
-        /// <param name="rangeVariableUnderlyingParameter">If variable.Kind is RangeVariable, its underlying lambda parameter. Else null.</param>
-        protected override void NoteRead(Symbol variable, ParameterSymbol rangeVariableUnderlyingParameter = null)
+        /// <param name="underlyingParameterSymbol">If variable.Kind is RangeVariable or QueryConclusionVariable, its underlying lambda parameter. Else null.</param>
+        protected override void NoteRead(Symbol variable, ParameterSymbol underlyingParameterSymbol = null)
         {
             if ((object)variable == null) return;
             if (variable.Kind != SymbolKind.Field) (IsInside ? _readInside : _readOutside).Add(variable);
-            base.NoteRead(variable, rangeVariableUnderlyingParameter);
+            base.NoteRead(variable, underlyingParameterSymbol);
         }
 
         protected override void NoteWrite(Symbol variable, BoundExpression value, bool read)
@@ -163,6 +163,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                         readOrWritten.Add(((BoundRangeVariable)receiver).RangeVariableSymbol);
                     }
                     break;
+                case BoundKind.QueryConclusionVariable:
+                    if (RegionContains(receiverSyntax.Span))
+                    {
+                        readOrWritten.Add(((BoundQueryConclusionVariable)receiver).QueryConclusionVariableSymbol);
+                    }
+                    break;
                 case BoundKind.FieldAccess:
                     if (receiver.Type.IsStructType() && receiverSyntax.Span.OverlapsWith(RegionSpan))
                     {
@@ -180,10 +186,25 @@ namespace Microsoft.CodeAnalysis.CSharp
                     if (written) NoteWrite(((BoundRangeVariable)node).RangeVariableSymbol, value, read);
                     break;
 
+                case BoundKind.QueryConclusionVariable:
+                    if (written) NoteWrite(((BoundQueryConclusionVariable)node).QueryConclusionVariableSymbol, value, read);
+                    break;
+
                 case BoundKind.QueryClause:
                     {
                         base.AssignImpl(node, value, refKind, written, read);
                         var symbol = ((BoundQueryClause)node).DefinedSymbol;
+                        if ((object)symbol != null)
+                        {
+                            if (written) NoteWrite(symbol, value, read);
+                        }
+                    }
+                    break;
+
+                case BoundKind.QueryConclusion:
+                    {
+                        base.AssignImpl(node, value, refKind, written, read);
+                        var symbol = ((BoundQueryConclusion)node).DefinedSymbol;
                         if ((object)symbol != null)
                         {
                             if (written) NoteWrite(symbol, value, read);
@@ -215,17 +236,21 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public override BoundNode VisitRangeVariable(BoundRangeVariable node)
         {
-            // Compute the "underlying symbol" for a read of the range variable
-            ParameterSymbol rangeVariableUnderlyingParameter = GetRangeVariableUnderlyingParameter(node.Value);
-            NoteRead(node.RangeVariableSymbol, rangeVariableUnderlyingParameter);
+            NoteRead(node.RangeVariableSymbol, GetUnderlyingParameterSymbol(node.Value));
+            return null;
+        }
+
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            NoteRead(node.QueryConclusionVariableSymbol, GetUnderlyingParameterSymbol(node.Value));
             return null;
         }
 
         /// <summary>
-        /// Compute the underlying lambda parameter symbol for a range variable, if any.
+        /// Compute the underlying lambda parameter symbol for a query variable, if any.
         /// </summary>
-        /// <param name="underlying">The bound node for the expansion of the range variable</param>
-        private static ParameterSymbol GetRangeVariableUnderlyingParameter(BoundNode underlying)
+        /// <param name="underlying">The bound node for the expansion of the query variable</param>
+        private static ParameterSymbol GetUnderlyingParameterSymbol(BoundNode underlying)
         {
             while (underlying != null)
             {
@@ -247,7 +272,15 @@ namespace Microsoft.CodeAnalysis.CSharp
         public override BoundNode VisitQueryClause(BoundQueryClause node)
         {
             Assign(node, value: null);
+
             return base.VisitQueryClause(node);
+        }
+
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
+        {
+            Assign(node, value: null);
+
+            return base.VisitQueryConclusion(node);
         }
     }
 }

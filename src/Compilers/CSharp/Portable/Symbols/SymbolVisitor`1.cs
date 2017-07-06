@@ -98,6 +98,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             return DefaultVisit(symbol);
         }
 
+        public virtual TResult VisitQueryConclusionVariable(QueryConclusionVariableSymbol symbol)
+        {
+            return DefaultVisit(symbol);
+        }
+
         public virtual TResult VisitRangeVariable(RangeVariableSymbol symbol)
         {
             return DefaultVisit(symbol);

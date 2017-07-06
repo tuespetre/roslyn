@@ -64,6 +64,8 @@ namespace Microsoft.CodeAnalysis
                     return TextTags.TypeParameter;
                 case SymbolDisplayPartKind.RangeVariableName:
                     return TextTags.RangeVariable;
+                case SymbolDisplayPartKind.QueryConclusionVariableName:
+                    return TextTags.QueryConclusionVariable;
                 default:
                     return string.Empty;
             }

@@ -378,6 +378,13 @@ namespace Microsoft.CodeAnalysis
                 return null;
             }
 
+            public override object VisitQueryConclusionVariable(IQueryConclusionVariableSymbol queryConclusionVariableSymbol)
+            {
+                WriteType(SymbolKeyType.BodyLevel);
+                BodyLevelSymbolKey.Create(queryConclusionVariableSymbol, this);
+                return null;
+            }
+
             public override object VisitMethod(IMethodSymbol methodSymbol)
             {
                 if (!methodSymbol.Equals(methodSymbol.ConstructedFrom))

@@ -424,6 +424,12 @@ namespace Microsoft.CodeAnalysis.CSharp
       return this.DefaultVisit(node);
     }
 
+    /// <summary>Called when the visitor visits a QueryConclusionSyntax node.</summary>
+    public virtual TResult VisitQueryConclusion(QueryConclusionSyntax node)
+    {
+      return this.DefaultVisit(node);
+    }
+
     /// <summary>Called when the visitor visits a OmittedArraySizeExpressionSyntax node.</summary>
     public virtual TResult VisitOmittedArraySizeExpression(OmittedArraySizeExpressionSyntax node)
     {
@@ -1647,6 +1653,12 @@ namespace Microsoft.CodeAnalysis.CSharp
 
     /// <summary>Called when the visitor visits a QueryContinuationSyntax node.</summary>
     public virtual void VisitQueryContinuation(QueryContinuationSyntax node)
+    {
+      this.DefaultVisit(node);
+    }
+
+    /// <summary>Called when the visitor visits a QueryConclusionSyntax node.</summary>
+    public virtual void VisitQueryConclusion(QueryConclusionSyntax node)
     {
       this.DefaultVisit(node);
     }
@@ -2915,8 +2927,8 @@ namespace Microsoft.CodeAnalysis.CSharp
     {
       var clauses = this.VisitList(node.Clauses);
       var selectOrGroup = (SelectOrGroupClauseSyntax)this.Visit(node.SelectOrGroup);
-      var continuation = (QueryContinuationSyntax)this.Visit(node.Continuation);
-      return node.Update(clauses, selectOrGroup, continuation);
+      var continuationOrConclusion = (QueryContinuationOrConclusionSyntax)this.Visit(node.ContinuationOrConclusion);
+      return node.Update(clauses, selectOrGroup, continuationOrConclusion);
     }
 
     public override SyntaxNode VisitFromClause(FromClauseSyntax node)
@@ -3003,6 +3015,16 @@ namespace Microsoft.CodeAnalysis.CSharp
       var identifier = this.VisitToken(node.Identifier);
       var body = (QueryBodySyntax)this.Visit(node.Body);
       return node.Update(intoKeyword, identifier, body);
+    }
+
+    public override SyntaxNode VisitQueryConclusion(QueryConclusionSyntax node)
+    {
+      var yieldKeyword = this.VisitToken(node.YieldKeyword);
+      var intoKeyword = this.VisitToken(node.IntoKeyword);
+      var identifier = this.VisitToken(node.Identifier);
+      var doKeyword = this.VisitToken(node.DoKeyword);
+      var expression = (ExpressionSyntax)this.Visit(node.Expression);
+      return node.Update(yieldKeyword, intoKeyword, identifier, doKeyword, expression);
     }
 
     public override SyntaxNode VisitOmittedArraySizeExpression(OmittedArraySizeExpressionSyntax node)
@@ -6017,18 +6039,18 @@ namespace Microsoft.CodeAnalysis.CSharp
 
 
     /// <summary>Creates a new QueryBodySyntax instance.</summary>
-    public static QueryBodySyntax QueryBody(SyntaxList<QueryClauseSyntax> clauses, SelectOrGroupClauseSyntax selectOrGroup, QueryContinuationSyntax continuation)
+    public static QueryBodySyntax QueryBody(SyntaxList<QueryClauseSyntax> clauses, SelectOrGroupClauseSyntax selectOrGroup, QueryContinuationOrConclusionSyntax continuationOrConclusion)
     {
       if (selectOrGroup == null)
         throw new ArgumentNullException(nameof(selectOrGroup));
-      return (QueryBodySyntax)Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.QueryBody(clauses.Node.ToGreenList<Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryClauseSyntax>(), selectOrGroup == null ? null : (Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SelectOrGroupClauseSyntax)selectOrGroup.Green, continuation == null ? null : (Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryContinuationSyntax)continuation.Green).CreateRed();
+      return (QueryBodySyntax)Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.QueryBody(clauses.Node.ToGreenList<Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryClauseSyntax>(), selectOrGroup == null ? null : (Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SelectOrGroupClauseSyntax)selectOrGroup.Green, continuationOrConclusion == null ? null : (Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryContinuationOrConclusionSyntax)continuationOrConclusion.Green).CreateRed();
     }
 
 
     /// <summary>Creates a new QueryBodySyntax instance.</summary>
     public static QueryBodySyntax QueryBody(SelectOrGroupClauseSyntax selectOrGroup)
     {
-      return SyntaxFactory.QueryBody(default(SyntaxList<QueryClauseSyntax>), selectOrGroup, default(QueryContinuationSyntax));
+      return SyntaxFactory.QueryBody(default(SyntaxList<QueryClauseSyntax>), selectOrGroup, default(QueryContinuationOrConclusionSyntax));
     }
 
     /// <summary>Creates a new FromClauseSyntax instance.</summary>
@@ -6393,6 +6415,55 @@ namespace Microsoft.CodeAnalysis.CSharp
     public static QueryContinuationSyntax QueryContinuation(string identifier, QueryBodySyntax body)
     {
       return SyntaxFactory.QueryContinuation(SyntaxFactory.Token(SyntaxKind.IntoKeyword), SyntaxFactory.Identifier(identifier), body);
+    }
+
+    /// <summary>Creates a new QueryConclusionSyntax instance.</summary>
+    public static QueryConclusionSyntax QueryConclusion(SyntaxToken yieldKeyword, SyntaxToken intoKeyword, SyntaxToken identifier, SyntaxToken doKeyword, ExpressionSyntax expression)
+    {
+      switch (yieldKeyword.Kind())
+      {
+        case SyntaxKind.YieldKeyword:
+          break;
+        default:
+          throw new ArgumentException("yieldKeyword");
+      }
+      switch (intoKeyword.Kind())
+      {
+        case SyntaxKind.IntoKeyword:
+          break;
+        default:
+          throw new ArgumentException("intoKeyword");
+      }
+      switch (identifier.Kind())
+      {
+        case SyntaxKind.IdentifierToken:
+          break;
+        default:
+          throw new ArgumentException("identifier");
+      }
+      switch (doKeyword.Kind())
+      {
+        case SyntaxKind.DoKeyword:
+          break;
+        default:
+          throw new ArgumentException("doKeyword");
+      }
+      if (expression == null)
+        throw new ArgumentNullException(nameof(expression));
+      return (QueryConclusionSyntax)Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.QueryConclusion((Syntax.InternalSyntax.SyntaxToken)yieldKeyword.Node, (Syntax.InternalSyntax.SyntaxToken)intoKeyword.Node, (Syntax.InternalSyntax.SyntaxToken)identifier.Node, (Syntax.InternalSyntax.SyntaxToken)doKeyword.Node, expression == null ? null : (Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.ExpressionSyntax)expression.Green).CreateRed();
+    }
+
+
+    /// <summary>Creates a new QueryConclusionSyntax instance.</summary>
+    public static QueryConclusionSyntax QueryConclusion(SyntaxToken identifier, ExpressionSyntax expression)
+    {
+      return SyntaxFactory.QueryConclusion(SyntaxFactory.Token(SyntaxKind.YieldKeyword), SyntaxFactory.Token(SyntaxKind.IntoKeyword), identifier, SyntaxFactory.Token(SyntaxKind.DoKeyword), expression);
+    }
+
+    /// <summary>Creates a new QueryConclusionSyntax instance.</summary>
+    public static QueryConclusionSyntax QueryConclusion(string identifier, ExpressionSyntax expression)
+    {
+      return SyntaxFactory.QueryConclusion(SyntaxFactory.Token(SyntaxKind.YieldKeyword), SyntaxFactory.Token(SyntaxKind.IntoKeyword), SyntaxFactory.Identifier(identifier), SyntaxFactory.Token(SyntaxKind.DoKeyword), expression);
     }
 
     /// <summary>Creates a new OmittedArraySizeExpressionSyntax instance.</summary>

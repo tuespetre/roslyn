@@ -1639,10 +1639,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                             default:
                                 throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
                         }
-                    }
+                }
 
                 case SymbolKind.RangeVariable:
                     return BindRangeVariable(node, (RangeVariableSymbol)symbol, diagnostics);
+
+                case SymbolKind.QueryConclusionVariable:
+                    return BindQueryConclusionVariable(node, (QueryConclusionVariableSymbol)symbol, diagnostics);
 
                 default:
                     throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
@@ -1652,6 +1655,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         protected virtual BoundExpression BindRangeVariable(SimpleNameSyntax node, RangeVariableSymbol qv, DiagnosticBag diagnostics)
         {
             return Next.BindRangeVariable(node, qv, diagnostics);
+        }
+
+        protected virtual BoundExpression BindQueryConclusionVariable(SimpleNameSyntax node, QueryConclusionVariableSymbol qv, DiagnosticBag diagnostics)
+        {
+            return Next.BindQueryConclusionVariable(node, qv, diagnostics);
         }
 
         private BoundExpression SynthesizeReceiver(CSharpSyntaxNode node, Symbol member, DiagnosticBag diagnostics)
@@ -5072,6 +5080,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         case SymbolKind.Parameter:
                         case SymbolKind.Property:
                         case SymbolKind.RangeVariable:
+                        case SymbolKind.QueryConclusionVariable:
                             var leftType = boundValue.Type;
                             Debug.Assert((object)leftType != null);
 

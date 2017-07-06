@@ -30,6 +30,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SymbolKind.Local:
                 case SymbolKind.Parameter:
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                     return MessageID.IDS_SK_VARIABLE.Localize();
                 case SymbolKind.Alias:
                     return MessageID.IDS_SK_ALIAS.Localize();

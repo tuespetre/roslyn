@@ -1007,8 +1007,14 @@
   <Node Name="BoundRangeVariable" Base="BoundExpression">
     <!-- Non-null type is required for this node kind -->
     <Field Name="Type" Type="TypeSymbol" Override="true" Null="disallow"/>
-
     <Field Name="RangeVariableSymbol" Type="RangeVariableSymbol"/>
+    <Field Name="Value" Type="BoundExpression"/>
+  </Node>
+
+  <Node Name="BoundQueryConclusionVariable" Base="BoundExpression">
+    <!-- Non-null type is required for this node kind -->
+    <Field Name="Type" Type="TypeSymbol" Override="true" Null="disallow"/>
+    <Field Name="QueryConclusionVariableSymbol" Type="QueryConclusionVariableSymbol"/>
     <Field Name="Value" Type="BoundExpression"/>
   </Node>
 
@@ -1532,6 +1538,17 @@
     <Field Name="DefinedSymbol" Type="RangeVariableSymbol" Null="allow"/>
     <!-- The enclosing binder in which the query clause was evaluated. -->
     <Field Name="Binder" Type="Binder" Null="disallow" />
+  </Node>
+  
+  <Node Name="BoundQueryConclusion" Base="BoundExpression">
+    <!-- Equal to Statement.Type. -->
+    <Field Name="Type" Type="TypeSymbol" Override="true" Null="disallow"/>
+    <!-- The value computed for this query conclusion. -->
+    <Field Name="Value" Type="BoundExpression" Null="disallow"/>
+    <!-- The query variable introduced by this query conclusion. -->
+    <Field Name="DefinedSymbol" Type="QueryConclusionVariableSymbol"/>
+    <!-- The enclosing binder in which the query conclusion was evaluated. -->
+    <Field Name="Binder" Type="Binder" Null="disallow"/>
   </Node>
 
   <!-- 

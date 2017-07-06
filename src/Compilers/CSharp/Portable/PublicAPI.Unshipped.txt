@@ -1,10 +1,40 @@
+*REMOVED*Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.Continuation.get -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationSyntax
+*REMOVED*Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.Update(Microsoft.CodeAnalysis.SyntaxList<Microsoft.CodeAnalysis.CSharp.Syntax.QueryClauseSyntax> clauses, Microsoft.CodeAnalysis.CSharp.Syntax.SelectOrGroupClauseSyntax selectOrGroup, Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationSyntax continuation) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
+*REMOVED*Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.WithContinuation(Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationSyntax continuation) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
+*REMOVED*static Microsoft.CodeAnalysis.CSharp.SyntaxFactory.QueryBody(Microsoft.CodeAnalysis.SyntaxList<Microsoft.CodeAnalysis.CSharp.Syntax.QueryClauseSyntax> clauses, Microsoft.CodeAnalysis.CSharp.Syntax.SelectOrGroupClauseSyntax selectOrGroup, Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationSyntax continuation) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
 Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp7_1 = 701 -> Microsoft.CodeAnalysis.CSharp.LanguageVersion
 Microsoft.CodeAnalysis.CSharp.LanguageVersion.CSharp7_2 = 702 -> Microsoft.CodeAnalysis.CSharp.LanguageVersion
 Microsoft.CodeAnalysis.CSharp.LanguageVersionFacts
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.ContinuationOrConclusion.get -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationOrConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.Update(Microsoft.CodeAnalysis.SyntaxList<Microsoft.CodeAnalysis.CSharp.Syntax.QueryClauseSyntax> clauses, Microsoft.CodeAnalysis.CSharp.Syntax.SelectOrGroupClauseSyntax selectOrGroup, Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationOrConclusionSyntax continuationOrConclusion) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax.WithContinuationOrConclusion(Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationOrConclusionSyntax continuationOrConclusion) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.DoKeyword.get -> Microsoft.CodeAnalysis.SyntaxToken
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.Expression.get -> Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.Identifier.get -> Microsoft.CodeAnalysis.SyntaxToken
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.IntoKeyword.get -> Microsoft.CodeAnalysis.SyntaxToken
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.Update(Microsoft.CodeAnalysis.SyntaxToken yieldKeyword, Microsoft.CodeAnalysis.SyntaxToken intoKeyword, Microsoft.CodeAnalysis.SyntaxToken identifier, Microsoft.CodeAnalysis.SyntaxToken doKeyword, Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.WithDoKeyword(Microsoft.CodeAnalysis.SyntaxToken doKeyword) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.WithExpression(Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.WithIdentifier(Microsoft.CodeAnalysis.SyntaxToken identifier) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.WithIntoKeyword(Microsoft.CodeAnalysis.SyntaxToken intoKeyword) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.WithYieldKeyword(Microsoft.CodeAnalysis.SyntaxToken yieldKeyword) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.YieldKeyword.get -> Microsoft.CodeAnalysis.SyntaxToken
+Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationOrConclusionSyntax
 Microsoft.CodeAnalysis.CSharp.SyntaxKind.ConflictMarkerTrivia = 8564 -> Microsoft.CodeAnalysis.CSharp.SyntaxKind
 Microsoft.CodeAnalysis.CSharp.SyntaxKind.DefaultLiteralExpression = 8755 -> Microsoft.CodeAnalysis.CSharp.SyntaxKind
+Microsoft.CodeAnalysis.CSharp.SyntaxKind.QueryConclusion = 9060 -> Microsoft.CodeAnalysis.CSharp.SyntaxKind
+override Microsoft.CodeAnalysis.CSharp.CSharpSyntaxRewriter.VisitQueryConclusion(Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax node) -> Microsoft.CodeAnalysis.SyntaxNode
+override Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.Accept(Microsoft.CodeAnalysis.CSharp.CSharpSyntaxVisitor visitor) -> void
+override Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax.Accept<TResult>(Microsoft.CodeAnalysis.CSharp.CSharpSyntaxVisitor<TResult> visitor) -> TResult
 static Microsoft.CodeAnalysis.CSharp.LanguageVersionFacts.MapSpecifiedToEffectiveVersion(this Microsoft.CodeAnalysis.CSharp.LanguageVersion version) -> Microsoft.CodeAnalysis.CSharp.LanguageVersion
 static Microsoft.CodeAnalysis.CSharp.LanguageVersionFacts.ToDisplayString(this Microsoft.CodeAnalysis.CSharp.LanguageVersion version) -> string
 static Microsoft.CodeAnalysis.CSharp.LanguageVersionFacts.TryParse(this string version, out Microsoft.CodeAnalysis.CSharp.LanguageVersion result) -> bool
+static Microsoft.CodeAnalysis.CSharp.SyntaxFactory.QueryBody(Microsoft.CodeAnalysis.SyntaxList<Microsoft.CodeAnalysis.CSharp.Syntax.QueryClauseSyntax> clauses, Microsoft.CodeAnalysis.CSharp.Syntax.SelectOrGroupClauseSyntax selectOrGroup, Microsoft.CodeAnalysis.CSharp.Syntax.QueryContinuationOrConclusionSyntax continuationOrConclusion) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryBodySyntax
+static Microsoft.CodeAnalysis.CSharp.SyntaxFactory.QueryConclusion(Microsoft.CodeAnalysis.SyntaxToken identifier, Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+static Microsoft.CodeAnalysis.CSharp.SyntaxFactory.QueryConclusion(Microsoft.CodeAnalysis.SyntaxToken yieldKeyword, Microsoft.CodeAnalysis.SyntaxToken intoKeyword, Microsoft.CodeAnalysis.SyntaxToken identifier, Microsoft.CodeAnalysis.SyntaxToken doKeyword, Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
+static Microsoft.CodeAnalysis.CSharp.SyntaxFactory.QueryConclusion(string identifier, Microsoft.CodeAnalysis.CSharp.Syntax.ExpressionSyntax expression) -> Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax
 static Microsoft.CodeAnalysis.CSharp.SyntaxFacts.IsReservedTupleElementName(string elementName) -> bool
 static Microsoft.CodeAnalysis.CSharp.SyntaxFacts.TryGetInferredMemberName(this Microsoft.CodeAnalysis.SyntaxNode syntax) -> string
+virtual Microsoft.CodeAnalysis.CSharp.CSharpSyntaxVisitor.VisitQueryConclusion(Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax node) -> void
+virtual Microsoft.CodeAnalysis.CSharp.CSharpSyntaxVisitor<TResult>.VisitQueryConclusion(Microsoft.CodeAnalysis.CSharp.Syntax.QueryConclusionSyntax node) -> TResult

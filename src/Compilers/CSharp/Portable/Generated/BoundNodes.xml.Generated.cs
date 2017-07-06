@@ -110,6 +110,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         Local,
         PseudoVariable,
         RangeVariable,
+        QueryConclusionVariable,
         Parameter,
         LabelStatement,
         GotoStatement,
@@ -156,6 +157,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         Lambda,
         UnboundLambda,
         QueryClause,
+        QueryConclusion,
         TypeOrInstanceInitializers,
         NameOfOperator,
         InterpolatedString,
@@ -3737,6 +3739,42 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
     }
 
+    internal sealed partial class BoundQueryConclusionVariable : BoundExpression
+    {
+        public BoundQueryConclusionVariable(SyntaxNode syntax, QueryConclusionVariableSymbol queryConclusionVariableSymbol, BoundExpression value, TypeSymbol type, bool hasErrors = false)
+            : base(BoundKind.QueryConclusionVariable, syntax, type, hasErrors || value.HasErrors())
+        {
+
+            Debug.Assert(queryConclusionVariableSymbol != null, "Field 'queryConclusionVariableSymbol' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+            Debug.Assert(value != null, "Field 'value' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+            Debug.Assert(type != null, "Field 'type' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+
+            this.QueryConclusionVariableSymbol = queryConclusionVariableSymbol;
+            this.Value = value;
+        }
+
+
+        public QueryConclusionVariableSymbol QueryConclusionVariableSymbol { get; }
+
+        public BoundExpression Value { get; }
+
+        public override BoundNode Accept(BoundTreeVisitor visitor)
+        {
+            return visitor.VisitQueryConclusionVariable(this);
+        }
+
+        public BoundQueryConclusionVariable Update(QueryConclusionVariableSymbol queryConclusionVariableSymbol, BoundExpression value, TypeSymbol type)
+        {
+            if (queryConclusionVariableSymbol != this.QueryConclusionVariableSymbol || value != this.Value || type != this.Type)
+            {
+                var result = new BoundQueryConclusionVariable(this.Syntax, queryConclusionVariableSymbol, value, type, this.HasErrors);
+                result.WasCompilerGenerated = this.WasCompilerGenerated;
+                return result;
+            }
+            return this;
+        }
+    }
+
     internal sealed partial class BoundParameter : BoundExpression
     {
         public BoundParameter(SyntaxNode syntax, ParameterSymbol parameterSymbol, TypeSymbol type, bool hasErrors)
@@ -5646,6 +5684,46 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
     }
 
+    internal sealed partial class BoundQueryConclusion : BoundExpression
+    {
+        public BoundQueryConclusion(SyntaxNode syntax, BoundExpression value, QueryConclusionVariableSymbol definedSymbol, Binder binder, TypeSymbol type, bool hasErrors = false)
+            : base(BoundKind.QueryConclusion, syntax, type, hasErrors || value.HasErrors())
+        {
+
+            Debug.Assert(value != null, "Field 'value' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+            Debug.Assert(definedSymbol != null, "Field 'definedSymbol' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+            Debug.Assert(binder != null, "Field 'binder' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+            Debug.Assert(type != null, "Field 'type' cannot be null (use Null=\"allow\" in BoundNodes.xml to remove this check)");
+
+            this.Value = value;
+            this.DefinedSymbol = definedSymbol;
+            this.Binder = binder;
+        }
+
+
+        public BoundExpression Value { get; }
+
+        public QueryConclusionVariableSymbol DefinedSymbol { get; }
+
+        public Binder Binder { get; }
+
+        public override BoundNode Accept(BoundTreeVisitor visitor)
+        {
+            return visitor.VisitQueryConclusion(this);
+        }
+
+        public BoundQueryConclusion Update(BoundExpression value, QueryConclusionVariableSymbol definedSymbol, Binder binder, TypeSymbol type)
+        {
+            if (value != this.Value || definedSymbol != this.DefinedSymbol || binder != this.Binder || type != this.Type)
+            {
+                var result = new BoundQueryConclusion(this.Syntax, value, definedSymbol, binder, type, this.HasErrors);
+                result.WasCompilerGenerated = this.WasCompilerGenerated;
+                return result;
+            }
+            return this;
+        }
+    }
+
     internal sealed partial class BoundTypeOrInstanceInitializers : BoundStatementList
     {
         public BoundTypeOrInstanceInitializers(SyntaxNode syntax, ImmutableArray<BoundStatement> statements, bool hasErrors = false)
@@ -6267,6 +6345,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return VisitPseudoVariable(node as BoundPseudoVariable, arg);
                 case BoundKind.RangeVariable: 
                     return VisitRangeVariable(node as BoundRangeVariable, arg);
+                case BoundKind.QueryConclusionVariable: 
+                    return VisitQueryConclusionVariable(node as BoundQueryConclusionVariable, arg);
                 case BoundKind.Parameter: 
                     return VisitParameter(node as BoundParameter, arg);
                 case BoundKind.LabelStatement: 
@@ -6359,6 +6439,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return VisitUnboundLambda(node as UnboundLambda, arg);
                 case BoundKind.QueryClause: 
                     return VisitQueryClause(node as BoundQueryClause, arg);
+                case BoundKind.QueryConclusion: 
+                    return VisitQueryConclusion(node as BoundQueryConclusion, arg);
                 case BoundKind.TypeOrInstanceInitializers: 
                     return VisitTypeOrInstanceInitializers(node as BoundTypeOrInstanceInitializers, arg);
                 case BoundKind.NameOfOperator: 
@@ -6753,6 +6835,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return this.DefaultVisit(node, arg);
         }
+        public virtual R VisitQueryConclusionVariable(BoundQueryConclusionVariable node, A arg)
+        {
+            return this.DefaultVisit(node, arg);
+        }
         public virtual R VisitParameter(BoundParameter node, A arg)
         {
             return this.DefaultVisit(node, arg);
@@ -6934,6 +7020,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             return this.DefaultVisit(node, arg);
         }
         public virtual R VisitQueryClause(BoundQueryClause node, A arg)
+        {
+            return this.DefaultVisit(node, arg);
+        }
+        public virtual R VisitQueryConclusion(BoundQueryConclusion node, A arg)
         {
             return this.DefaultVisit(node, arg);
         }
@@ -7353,6 +7443,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return this.DefaultVisit(node);
         }
+        public virtual BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            return this.DefaultVisit(node);
+        }
         public virtual BoundNode VisitParameter(BoundParameter node)
         {
             return this.DefaultVisit(node);
@@ -7534,6 +7628,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             return this.DefaultVisit(node);
         }
         public virtual BoundNode VisitQueryClause(BoundQueryClause node)
+        {
+            return this.DefaultVisit(node);
+        }
+        public virtual BoundNode VisitQueryConclusion(BoundQueryConclusion node)
         {
             return this.DefaultVisit(node);
         }
@@ -8059,6 +8157,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             this.Visit(node.Value);
             return null;
         }
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            this.Visit(node.Value);
+            return null;
+        }
         public override BoundNode VisitParameter(BoundParameter node)
         {
             return null;
@@ -8291,6 +8394,11 @@ namespace Microsoft.CodeAnalysis.CSharp
             return null;
         }
         public override BoundNode VisitQueryClause(BoundQueryClause node)
+        {
+            this.Visit(node.Value);
+            return null;
+        }
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
         {
             this.Visit(node.Value);
             return null;
@@ -8884,6 +8992,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             TypeSymbol type = this.VisitType(node.Type);
             return node.Update(node.RangeVariableSymbol, value, type);
         }
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            BoundExpression value = (BoundExpression)this.Visit(node.Value);
+            TypeSymbol type = this.VisitType(node.Type);
+            return node.Update(node.QueryConclusionVariableSymbol, value, type);
+        }
         public override BoundNode VisitParameter(BoundParameter node)
         {
             TypeSymbol type = this.VisitType(node.Type);
@@ -9157,6 +9271,12 @@ namespace Microsoft.CodeAnalysis.CSharp
             return node.Update(node.Data);
         }
         public override BoundNode VisitQueryClause(BoundQueryClause node)
+        {
+            BoundExpression value = (BoundExpression)this.Visit(node.Value);
+            TypeSymbol type = this.VisitType(node.Type);
+            return node.Update(value, node.DefinedSymbol, node.Binder, type);
+        }
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
         {
             BoundExpression value = (BoundExpression)this.Visit(node.Value);
             TypeSymbol type = this.VisitType(node.Type);
@@ -10153,6 +10273,16 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
             );
         }
+        public override TreeDumperNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node, object arg)
+        {
+            return new TreeDumperNode("queryConclusionVariable", null, new TreeDumperNode[]
+            {
+                new TreeDumperNode("queryConclusionVariableSymbol", node.QueryConclusionVariableSymbol, null),
+                new TreeDumperNode("value", null, new TreeDumperNode[] { Visit(node.Value, null) }),
+                new TreeDumperNode("type", node.Type, null)
+            }
+            );
+        }
         public override TreeDumperNode VisitParameter(BoundParameter node, object arg)
         {
             return new TreeDumperNode("parameter", null, new TreeDumperNode[]
@@ -10659,6 +10789,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         public override TreeDumperNode VisitQueryClause(BoundQueryClause node, object arg)
         {
             return new TreeDumperNode("queryClause", null, new TreeDumperNode[]
+            {
+                new TreeDumperNode("value", null, new TreeDumperNode[] { Visit(node.Value, null) }),
+                new TreeDumperNode("definedSymbol", node.DefinedSymbol, null),
+                new TreeDumperNode("binder", node.Binder, null),
+                new TreeDumperNode("type", node.Type, null)
+            }
+            );
+        }
+        public override TreeDumperNode VisitQueryConclusion(BoundQueryConclusion node, object arg)
+        {
+            return new TreeDumperNode("queryConclusion", null, new TreeDumperNode[]
             {
                 new TreeDumperNode("value", null, new TreeDumperNode[] { Visit(node.Value, null) }),
                 new TreeDumperNode("definedSymbol", node.DefinedSymbol, null),

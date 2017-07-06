@@ -133,7 +133,10 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
 
         protected override IEnumerable<SyntaxNode> GetVariableUseSites(IEnumerable<SyntaxNode> roots, ISymbol localOrParameter, SemanticModel model, CancellationToken cancellationToken)
         {
-            Debug.Assert(localOrParameter is IParameterSymbol || localOrParameter is ILocalSymbol || localOrParameter is IRangeVariableSymbol);
+            Debug.Assert(localOrParameter is IParameterSymbol 
+                || localOrParameter is ILocalSymbol 
+                || localOrParameter is IRangeVariableSymbol
+                || localOrParameter is IQueryConclusionVariableSymbol);
 
             // not supported (it's non trivial to find all places where "this" is used):
             Debug.Assert(!localOrParameter.IsThisParameter());
@@ -1360,6 +1363,10 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
                 case SyntaxKind.QueryContinuation:
                     return ((QueryContinuationSyntax)node).IntoKeyword.Span;
 
+                case SyntaxKind.QueryConclusion:
+                    var queryConclusion = (QueryConclusionSyntax)node;
+                    return TextSpan.FromBounds(queryConclusion.SpanStart, queryConclusion.IntoKeyword.Span.End);
+
                 case SyntaxKind.FromClause:
                     return ((FromClauseSyntax)node).FromKeyword.Span;
 
@@ -1644,6 +1651,9 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
 
                 case SyntaxKind.QueryContinuation:
                     return CSharpFeaturesResources.into_clause;
+
+                case SyntaxKind.QueryConclusion:
+                    return CSharpFeaturesResources.yield_into_clause;
 
                 case SyntaxKind.IsPatternExpression:
                     return CSharpFeaturesResources.is_pattern;

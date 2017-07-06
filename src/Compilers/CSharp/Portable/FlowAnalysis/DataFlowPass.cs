@@ -378,7 +378,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     Location location;
                     if (_unsafeAddressTakenVariables.TryGetValue(captured, out location))
                     {
-                        Debug.Assert(captured.Kind == SymbolKind.Parameter || captured.Kind == SymbolKind.Local || captured.Kind == SymbolKind.RangeVariable);
+                        Debug.Assert(captured.Kind == SymbolKind.Parameter || captured.Kind == SymbolKind.Local || captured.Kind == SymbolKind.RangeVariable || captured.Kind == SymbolKind.QueryConclusionVariable);
                         diagnostics.Add(ErrorCode.ERR_LocalCantBeFixedAndHoisted, location, captured.Name);
                     }
                 }
@@ -391,12 +391,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Check if the variable is captured and, if so, add it to this._capturedVariables.
         /// </summary>
         /// <param name="variable">The variable to be checked</param>
-        /// <param name="rangeVariableUnderlyingParameter">If variable.Kind is RangeVariable, its underlying lambda parameter. Else null.</param>
-        private void CheckCaptured(Symbol variable, ParameterSymbol rangeVariableUnderlyingParameter = null)
+        /// <param name="underlyingParameterSymbol">If variable.Kind is RangeVariable or QueryConclusionVariable, its underlying lambda parameter. Else null.</param>
+        private void CheckCaptured(Symbol variable, ParameterSymbol underlyingParameterSymbol = null)
         {
             if (IsCaptured(variable,
                            currentMethodOrLambda,
-                           rangeVariableUnderlyingParameter))
+                           underlyingParameterSymbol))
             {
                 NoteCaptured(variable);
             }
@@ -404,7 +404,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private static bool IsCaptured(Symbol variable,
                                          MethodSymbol containingMethodOrLambda,
-                                         ParameterSymbol rangeVariableUnderlyingParameter)
+                                         ParameterSymbol underlyingParameterSymbol)
         {
             switch (variable.Kind)
             {
@@ -418,8 +418,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
                     break;
                 case SymbolKind.RangeVariable:
-                    if (rangeVariableUnderlyingParameter != null &&
-                        containingMethodOrLambda != rangeVariableUnderlyingParameter.ContainingSymbol)
+                case SymbolKind.QueryConclusionVariable:
+                    if (underlyingParameterSymbol != null &&
+                        containingMethodOrLambda != underlyingParameterSymbol.ContainingSymbol)
                     {
                         return true;
                     }
@@ -429,12 +430,13 @@ namespace Microsoft.CodeAnalysis.CSharp
         }
 
         /// <summary>
-        /// Add the variable to the captured set. For range variables we only add it if inside the region.
+        /// Add the variable to the captured set. For query variables we only add it if inside the region.
         /// </summary>
         /// <param name="variable"></param>
         private void NoteCaptured(Symbol variable)
         {
-            if (variable.Kind != SymbolKind.RangeVariable || this.regionPlace == PreciseAbstractFlowPass<LocalState>.RegionPlace.Inside)
+            if ((variable.Kind != SymbolKind.RangeVariable && variable.Kind != SymbolKind.QueryConclusionVariable)
+                || this.regionPlace == PreciseAbstractFlowPass<LocalState>.RegionPlace.Inside)
             {
                 _capturedVariables.Add(variable);
             }
@@ -456,7 +458,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         protected virtual void NoteRead(
             Symbol variable,
-            ParameterSymbol rangeVariableUnderlyingParameter = null)
+            ParameterSymbol underlyingParameterSymbol = null)
         {
             var local = variable as LocalSymbol;
             if ((object)local != null)
@@ -479,7 +481,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                                                     write: false);
                 }
 
-                CheckCaptured(variable, rangeVariableUnderlyingParameter);
+                CheckCaptured(variable, underlyingParameterSymbol);
             }
         }
 
@@ -702,6 +704,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                         NoteWrite(((BoundRangeVariable)n).Value, value, read);
                         return;
 
+                    case BoundKind.QueryConclusionVariable:
+                        NoteWrite(((BoundQueryConclusionVariable)n).Value, value, read);
+                        return;
+
                     default:
                         return;
                 }
@@ -734,7 +740,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         protected int GetOrCreateSlot(Symbol symbol, int containingSlot = 0)
         {
-            if (symbol is RangeVariableSymbol) return -1;
+            if (symbol is RangeVariableSymbol || symbol is QueryConclusionVariableSymbol) return -1;
 
             containingSlot = DescendThroughTupleRestFields(ref symbol, containingSlot, forceContainingSlotsToExist: true);
 
@@ -842,6 +848,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return GetOrCreateSlot(((BoundParameter)node).ParameterSymbol);
                 case BoundKind.RangeVariable:
                     return MakeSlot(((BoundRangeVariable)node).Value);
+                case BoundKind.QueryConclusionVariable:
+                    return MakeSlot(((BoundQueryConclusionVariable)node).Value);
                 case BoundKind.FieldAccess:
                     {
                         var fieldAccess = (BoundFieldAccess)node;
@@ -1097,7 +1105,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     }
 
                 case BoundKind.RangeVariable:
-                // range variables are always assigned
+                case BoundKind.QueryConclusionVariable:
+                // query variables are always assigned
                 default:
                     {
                         // The value is a method call return value or something else we can assume is assigned.
@@ -1142,6 +1151,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return result;
                     case BoundKind.RangeVariable:
                         return ((BoundRangeVariable)expression).RangeVariableSymbol;
+                    case BoundKind.QueryConclusionVariable:
+                        return ((BoundQueryConclusionVariable)expression).QueryConclusionVariableSymbol;
                     case BoundKind.Parameter:
                         return ((BoundParameter)expression).ParameterSymbol;
                     case BoundKind.ThisReference:
@@ -1233,6 +1244,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case BoundKind.RangeVariable:
                     AssignImpl(((BoundRangeVariable)node).Value, value, refKind, written, read);
+                    break;
+
+                case BoundKind.QueryConclusionVariable:
+                    AssignImpl(((BoundQueryConclusionVariable)node).Value, value, refKind, written, read);
                     break;
 
                 case BoundKind.BadExpression:

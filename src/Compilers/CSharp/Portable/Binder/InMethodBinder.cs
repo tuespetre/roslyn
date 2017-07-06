@@ -268,6 +268,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                     diagnostics.Add(ErrorCode.ERR_QueryRangeVariableOverrides, newLocation, name);
                     return true;
                 }
+
+                if (newSymbolKind == SymbolKind.QueryConclusionVariable)
+                {
+                    // The query conclusion variable '{0}' conflicts with a previous declaration of '{0}'
+                    diagnostics.Add(ErrorCode.ERR_QueryConclusionVariableOverrides, newLocation, name);
+                    return true;
+                }
             }
 
             if (parameterKind == SymbolKind.TypeParameter)
@@ -291,6 +298,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 {
                     // The range variable '{0}' cannot have the same name as a method type parameter
                     diagnostics.Add(ErrorCode.ERR_QueryRangeVariableSameAsTypeParam, newLocation, name);
+                    return true;
+                }
+
+                if (newSymbolKind == SymbolKind.QueryConclusionVariable)
+                {
+                    // The query conclusion variable '{0}' cannot have the same name as a method type parameter
+                    diagnostics.Add(ErrorCode.ERR_QueryConclusionVariableSameAsTypeParam, newLocation, name);
                     return true;
                 }
             }

@@ -1511,7 +1511,7 @@
     <Kind Name="QueryBody"/>
     <Field Name="Clauses" Type="SyntaxList&lt;QueryClauseSyntax&gt;"/>
     <Field Name="SelectOrGroup" Type="SelectOrGroupClauseSyntax"/>
-    <Field Name="Continuation" Type="QueryContinuationSyntax" Optional="true"/>
+    <Field Name="ContinuationOrConclusion" Type="QueryContinuationOrConclusionSyntax" Optional="true"/>
   </Node>
   <Node Name="FromClauseSyntax" Base="QueryClauseSyntax">
     <Kind Name="FromClause"/>
@@ -1625,7 +1625,9 @@
     </Field>
     <Field Name="ByExpression" Type="ExpressionSyntax"/>
   </Node>
-  <Node Name="QueryContinuationSyntax" Base="CSharpSyntaxNode">
+  <AbstractNode Name="QueryContinuationOrConclusionSyntax" Base="CSharpSyntaxNode">    
+  </AbstractNode>
+  <Node Name="QueryContinuationSyntax" Base="QueryContinuationOrConclusionSyntax">
     <Kind Name="QueryContinuation"/>
     <Field Name="IntoKeyword" Type="SyntaxToken">
       <Kind Name="IntoKeyword"/>
@@ -1637,6 +1639,25 @@
       <Kind Name="IdentifierToken"/>
     </Field>
     <Field Name="Body" Type="QueryBodySyntax"/>
+  </Node>
+  <Node Name="QueryConclusionSyntax" Base="QueryContinuationOrConclusionSyntax">
+    <Kind Name="QueryConclusion"/>
+    <Field Name="YieldKeyword" Type="SyntaxToken">
+      <Kind Name="YieldKeyword"/>
+    </Field>
+    <Field Name="IntoKeyword" Type="SyntaxToken">
+      <Kind Name="IntoKeyword"/>
+    </Field>
+    <Field Name="Identifier" Type="SyntaxToken">
+      <PropertyComment>
+        <summary>Gets the identifier.</summary>
+      </PropertyComment>
+      <Kind Name="IdentifierToken"/>
+    </Field>
+    <Field Name="DoKeyword" Type="SyntaxToken">
+      <Kind Name="DoKeyword"/>
+    </Field>
+    <Field Name="Expression" Type="ExpressionSyntax"/>
   </Node>
   <Node Name="OmittedArraySizeExpressionSyntax" Base="ExpressionSyntax">
     <Kind Name="OmittedArraySizeExpression"/>

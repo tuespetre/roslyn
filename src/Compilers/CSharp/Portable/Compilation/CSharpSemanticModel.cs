@@ -495,7 +495,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// Gets the semantic information associated with a select or group clause.
         /// </summary>
         public abstract SymbolInfo GetSymbolInfo(SelectOrGroupClauseSyntax node, CancellationToken cancellationToken = default(CancellationToken));
-
+        
         /// <summary>
         /// Returns what symbol(s), if any, the given expression syntax bound to in the program.
         /// 
@@ -3016,6 +3016,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public abstract IRangeVariableSymbol GetDeclaredSymbol(QueryContinuationSyntax node, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>
+        /// Get the query conclusion variable declared in a query conclusion.
+        /// </summary>
+        public abstract IQueryConclusionVariableSymbol GetDeclaredSymbol(QueryConclusionSyntax node, CancellationToken cancellationToken = default(CancellationToken));
+
         // Get the symbols and possible method or property group associated with a bound node, as
         // they should be exposed through GetSemanticInfo.
         // NB: It is not safe to pass a null binderOpt during speculative binding.
@@ -3263,6 +3268,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                         if ((object)query.DefinedSymbol != null) builder.Add(query.DefinedSymbol);
                         if (query.Cast != null && (object)query.Cast.ExpressionSymbol != null) builder.Add(query.Cast.ExpressionSymbol);
                         symbols = builder.ToImmutableAndFree();
+                    }
+                    break;
+
+                case BoundKind.QueryConclusion:
+                    {
+                        var conclusion = (BoundQueryConclusion)boundNode;
+                        symbols = ImmutableArray.Create<Symbol>(conclusion.DefinedSymbol);
                     }
                     break;
 
@@ -4786,6 +4798,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return this.GetDeclaredSymbol((JoinIntoClauseSyntax)node, cancellationToken);
                 case SyntaxKind.QueryContinuation:
                     return this.GetDeclaredSymbol((QueryContinuationSyntax)node, cancellationToken);
+                case SyntaxKind.QueryConclusion:
+                    return this.GetDeclaredSymbol((QueryConclusionSyntax)node, cancellationToken);
             }
 
             return null;

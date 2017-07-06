@@ -88,6 +88,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions
                 base.VisitQueryContinuation(node);
                 Add(node.Identifier);
             }
+
+            public override void VisitQueryConclusion(QueryConclusionSyntax node)
+            {
+                base.VisitQueryConclusion(node);
+                Add(node.Identifier);
+            }
         }
     }
 }

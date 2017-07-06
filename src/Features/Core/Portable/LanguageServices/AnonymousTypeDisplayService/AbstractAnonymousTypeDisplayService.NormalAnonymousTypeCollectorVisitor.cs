@@ -146,6 +146,10 @@ namespace Microsoft.CodeAnalysis.LanguageServices
             public override void VisitRangeVariable(IRangeVariableSymbol symbol)
             {
             }
+
+            public override void VisitQueryConclusionVariable(IQueryConclusionVariableSymbol symbol)
+            {
+            }
         }
     }
 }

@@ -106,5 +106,10 @@ namespace Microsoft.CodeAnalysis
         /// Symbol represents a value that is discarded, e.g. in M(out _)
         /// </summary>
         Discard = 19,
+
+        /// <summary>
+        /// Symbol is the defined variable of a query conclusion.
+        /// </summary>
+        QueryConclusionVariable = 20,
     }
 }

@@ -112,5 +112,14 @@ $$"));
   $$
 }");
         }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestAfterQueryConclusionVariableIdentifier()
+        {
+            await VerifyKeywordAsync(AddInsideMethod(
+@"var v = from x in y
+          select x yield into z
+          $$"));
+        }
     }
 }

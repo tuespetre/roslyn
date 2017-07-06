@@ -72,6 +72,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SymbolKind.Label:
                 case SymbolKind.Local:
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                 case SymbolKind.Preprocessing:
                 default:
                     throw ExceptionUtilities.UnexpectedValue(symbol.Kind);

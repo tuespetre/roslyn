@@ -1801,7 +1801,19 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         public override BoundNode VisitQueryClause(BoundQueryClause node)
         {
-            VisitRvalue(node.UnoptimizedForm ?? node.Value);
+            VisitRvalue(node.UnoptimizedFormOrValue);
+            return null;
+        }
+
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            // query variables are always definitely assigned; no need to analyze
+            return null;
+        }
+
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
+        {
+            VisitRvalue(node.Value);
             return null;
         }
 

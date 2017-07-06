@@ -7919,6 +7919,51 @@ namespace Microsoft.CodeAnalysis.CSharp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The query conclusion variable &apos;{0}&apos; conflicts with a previous declaration of &apos;{0}&apos;.
+        /// </summary>
+        internal static string ERR_QueryConclusionVariableOverrides {
+            get {
+                return ResourceManager.GetString("ERR_QueryConclusionVariableOverrides", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Query conclusion variable &apos;{0}&apos; cannot be assigned to -- it is read only.
+        /// </summary>
+        internal static string ERR_QueryConclusionVariableReadOnly {
+            get {
+                return ResourceManager.GetString("ERR_QueryConclusionVariableReadOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot pass the query conclusion variable &apos;{0}&apos; as an out or ref parameter.
+        /// </summary>
+        internal static string ERR_QueryConclusionVariableRefOrOut {
+            get {
+                return ResourceManager.GetString("ERR_QueryConclusionVariableRefOrOut", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot return the query conclusion variable &apos;{0}&apos; by reference.
+        /// </summary>
+        internal static string ERR_QueryConclusionVariableRefReturn {
+            get {
+                return ResourceManager.GetString("ERR_QueryConclusionVariableRefReturn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The query conclusion variable &apos;{0}&apos; cannot have the same name as a method type parameter.
+        /// </summary>
+        internal static string ERR_QueryConclusionVariableSameAsTypeParam {
+            get {
+                return ResourceManager.GetString("ERR_QueryConclusionVariableSameAsTypeParam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The range variable &apos;{0}&apos; has already been declared.
         /// </summary>
         internal static string ERR_QueryDuplicateRangeVariable {

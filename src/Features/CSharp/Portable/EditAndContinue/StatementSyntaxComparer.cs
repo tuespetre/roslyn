@@ -211,6 +211,7 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
             JoinIntoClause,                   // tied to parent
             GroupClauseLambda,                // tied to parent
             QueryContinuation,                // tied to parent
+            QueryConclusion,                  // tied to parent
 
             // helpers:
             Count,
@@ -244,6 +245,7 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
                 case Label.JoinIntoClause:
                 case Label.GroupClauseLambda:
                 case Label.QueryContinuation:
+                case Label.QueryConclusion:
                 case Label.CasePatternSwitchLabel:
                     return 1;
 
@@ -429,6 +431,9 @@ namespace Microsoft.CodeAnalysis.CSharp.EditAndContinue
 
                 case SyntaxKind.QueryContinuation:
                     return Label.QueryContinuation;
+
+                case SyntaxKind.QueryConclusion:
+                    return Label.QueryConclusion;
 
                 case SyntaxKind.LetClause:
                     return Label.LetClauseLambda;

@@ -20,7 +20,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
             return
                 IsValidContextForJoin(context) ||
                 IsValidContextForSelect(context) ||
-                IsValidContextForGroup(context);
+                IsValidContextForGroup(context) ||
+                IsAfterValidYieldKeywordUsage(context);
         }
 
         private bool IsValidContextForSelect(CSharpSyntaxContext context)
@@ -120,6 +121,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
             }
 
             return false;
+        }
+
+        private static bool IsAfterValidYieldKeywordUsage(CSharpSyntaxContext context)
+        {
+            return context.TargetToken.Parent is QueryConclusionSyntax queryConclusion
+                && queryConclusion.YieldKeyword == context.TargetToken;
         }
     }
 }

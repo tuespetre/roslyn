@@ -117,6 +117,7 @@ namespace Microsoft.CodeAnalysis
                 case TextTags.Parameter:
                 case TextTags.Property:
                 case TextTags.RangeVariable:
+                case TextTags.QueryConclusionVariable:
                     return ClassificationTypeNames.Identifier;
 
                 case TextTags.NumericLiteral:
@@ -301,6 +302,11 @@ namespace Microsoft.CodeAnalysis
         public static void AddRangeVariableName(this IList<TaggedText> parts, string text)
         {
             parts.Add(new TaggedText(TextTags.RangeVariable, text));
+        }
+
+        public static void AddQueryConclusionVariableName(this IList<TaggedText> parts, string text)
+        {
+            parts.Add(new TaggedText(TextTags.QueryConclusionVariable, text));
         }
 
         public static void AddStructName(this IList<TaggedText> parts, string text)

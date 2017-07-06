@@ -102,6 +102,15 @@ $$");
         }
 
         [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestAtBeginningOfQueryConclusionExpression()
+        {
+            await VerifyKeywordAsync(AddInsideMethod(
+@"var v = from x in y
+          select x yield into z
+          do $$"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
         public async Task TestNotAfterFrom1()
         {
             await VerifyAbsenceAsync(AddInsideMethod(

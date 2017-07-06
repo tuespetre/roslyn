@@ -407,6 +407,86 @@ namespace Microsoft.CodeAnalysis.CSharp
             return true;
         }
 
+        private static ImmutableArray<ParameterSymbol> CreateParameterSymbols(
+            LambdaSymbol lambdaSymbol,
+            (UnboundLambda lambda, Binder binder, ImmutableArray<TypeSymbol> parameterTypes, ImmutableArray<RefKind> parameterRefKinds) argument)
+        {
+            Debug.Assert(argument.parameterTypes.Length == argument.parameterRefKinds.Length);
+
+            var builder = ArrayBuilder<ParameterSymbol>.GetInstance();
+
+            if (!argument.lambda.HasSignature || argument.lambda.ParameterCount == 0)
+            {
+                for (var parameterIndex = 0; parameterIndex < argument.parameterTypes.Length; parameterIndex++)
+                {
+                    builder.Add(SynthesizedParameterSymbol.Create(
+                        lambdaSymbol,
+                        argument.parameterTypes[parameterIndex],
+                        parameterIndex,
+                        argument.parameterRefKinds[parameterIndex],
+                        GeneratedNames.LambdaCopyParameterName(parameterIndex)));
+                }
+            }
+            else
+            {
+                for (int parameterIndex = 0; parameterIndex < argument.lambda.ParameterCount; ++parameterIndex)
+                {
+                    // If there are no types given in the lambda then used the delegate type.
+                    // If the lambda is typed then the types probably match the delegate types;
+                    // if they do not, use the lambda types for binding. Either way, if we 
+                    // can, then we use the lambda types. (Whatever you do, do not use the names 
+                    // in the delegate parameters; they are not in scope!)
+
+                    TypeSymbol parameterType;
+                    RefKind parameterRefKind;
+
+                    if (argument.lambda.HasExplicitlyTypedParameterList)
+                    {
+                        parameterType = argument.lambda.ParameterType(parameterIndex);
+                        parameterRefKind = argument.lambda.RefKind(parameterIndex);
+                    }
+                    else if (parameterIndex < argument.parameterTypes.Length)
+                    {
+                        parameterType = argument.parameterTypes[parameterIndex];
+                        parameterRefKind = argument.parameterRefKinds[parameterIndex];
+                    }
+                    else
+                    {
+                        parameterType = new ExtendedErrorTypeSymbol(argument.binder.Compilation, name: string.Empty, arity: 0, errorInfo: null);
+                        parameterRefKind = CodeAnalysis.RefKind.None;
+                    }
+
+                    builder.Add(new SourceSimpleParameterSymbol(
+                        lambdaSymbol,
+                        parameterType,
+                        parameterIndex,
+                        parameterRefKind,
+                        argument.lambda.ParameterName(parameterIndex),
+                        ImmutableArray.Create(argument.lambda.ParameterLocation(parameterIndex))));
+                }
+            }
+
+            return builder.ToImmutableAndFree();
+        }
+
+        private LambdaSymbol CreateLambdaSymbol(
+            RefKind refKind,
+            TypeSymbol returnType,
+            ImmutableArray<TypeSymbol> parameterTypes, 
+            ImmutableArray<RefKind> parameterRefKinds)
+        {
+            return LambdaSymbol.Create(
+                binder.ContainingMemberOrLambda,
+                MessageID,
+                _unboundLambda.Syntax,
+                refKind,
+                returnType,
+                isSynthesized: _unboundLambda.WasCompilerGenerated,
+                isAsync: _unboundLambda.IsAsync,
+                parameterFactory: CreateParameterSymbols,
+                parameterFactoryArgument: (_unboundLambda, binder, parameterTypes, parameterRefKinds));
+        }
+
         private BoundLambda ReallyBind(NamedTypeSymbol delegateType)
         {
             var invokeMethod = DelegateInvokeMethod(delegateType);
@@ -439,14 +519,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            lambdaSymbol = new LambdaSymbol(
-                binder.Compilation,
-                binder.ContainingMemberOrLambda,
-                _unboundLambda,
-                cacheKey.ParameterTypes,
-                cacheKey.ParameterRefKinds,
-                refKind,
-                returnType);
+            lambdaSymbol = CreateLambdaSymbol(refKind, returnType, cacheKey.ParameterTypes, cacheKey.ParameterRefKinds);
             lambdaBodyBinder = new ExecutableCodeBinder(_unboundLambda.Syntax, lambdaSymbol, ParameterBinder(lambdaSymbol, binder));
             block = BindLambdaBody(lambdaSymbol, lambdaBodyBinder, diagnostics);
 
@@ -521,7 +594,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         private BoundLambda ReallyInferReturnType(NamedTypeSymbol delegateType, ImmutableArray<TypeSymbol> parameterTypes, ImmutableArray<RefKind> parameterRefKinds)
         {
             var diagnostics = DiagnosticBag.GetInstance();
-            var lambdaSymbol = new LambdaSymbol(binder.Compilation, binder.ContainingMemberOrLambda, _unboundLambda, parameterTypes, parameterRefKinds, refKind: Microsoft.CodeAnalysis.RefKind.None, returnType: null);
+            var lambdaSymbol = CreateLambdaSymbol(CodeAnalysis.RefKind.None, null, parameterTypes, parameterRefKinds);
             Binder lambdaBodyBinder = new ExecutableCodeBinder(_unboundLambda.Syntax, lambdaSymbol, ParameterBinder(lambdaSymbol, binder));
             var block = BindLambdaBody(lambdaSymbol, lambdaBodyBinder, diagnostics);
 

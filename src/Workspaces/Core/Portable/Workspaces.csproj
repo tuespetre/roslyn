@@ -212,6 +212,7 @@
     <Compile Include="Classification\IClassificationService.cs" />
     <Compile Include="ExtensionManager\IInfoBarService.cs" />
     <Compile Include="FindSymbols\FindReferences\DependentTypeFinder_ProjectIndex.cs" />
+    <Compile Include="FindSymbols\FindReferences\Finders\QueryConclusionVariableSymbolReferenceFinder.cs" />
     <Compile Include="Formatting\AbstractFormattingService.cs" />
     <Compile Include="Formatting\IFormattingService.cs" />
     <Compile Include="Remote\RemoteHostSessionHelpers.cs" />

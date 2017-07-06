@@ -349,6 +349,11 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             return Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.QueryContinuation(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Token(SyntaxKind.IntoKeyword), Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Identifier("Identifier"), GenerateQueryBody());
         }
         
+        private static Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryConclusionSyntax GenerateQueryConclusion()
+        {
+            return Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.QueryConclusion(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Token(SyntaxKind.YieldKeyword), Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Token(SyntaxKind.IntoKeyword), Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Identifier("Identifier"), Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Token(SyntaxKind.DoKeyword), GenerateIdentifierName());
+        }
+        
         private static Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.OmittedArraySizeExpressionSyntax GenerateOmittedArraySizeExpression()
         {
             return Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.OmittedArraySizeExpression(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.SyntaxFactory.Token(SyntaxKind.OmittedArraySizeExpressionToken));
@@ -1707,7 +1712,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             
             Assert.NotNull(node.Clauses);
             Assert.NotNull(node.SelectOrGroup);
-            Assert.Null(node.Continuation);
+            Assert.Null(node.ContinuationOrConclusion);
             
             AttachAndCheckDiagnostics(node);
         }
@@ -1834,6 +1839,20 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.Equal(SyntaxKind.IntoKeyword, node.IntoKeyword.Kind);
             Assert.Equal(SyntaxKind.IdentifierToken, node.Identifier.Kind);
             Assert.NotNull(node.Body);
+            
+            AttachAndCheckDiagnostics(node);
+        }
+        
+        [Fact]
+        public void TestQueryConclusionFactoryAndProperties()
+        {
+            var node = GenerateQueryConclusion();
+            
+            Assert.Equal(SyntaxKind.YieldKeyword, node.YieldKeyword.Kind);
+            Assert.Equal(SyntaxKind.IntoKeyword, node.IntoKeyword.Kind);
+            Assert.Equal(SyntaxKind.IdentifierToken, node.Identifier.Kind);
+            Assert.Equal(SyntaxKind.DoKeyword, node.DoKeyword.Kind);
+            Assert.NotNull(node.Expression);
             
             AttachAndCheckDiagnostics(node);
         }
@@ -5380,6 +5399,32 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         public void TestQueryContinuationIdentityRewriter()
         {
             var oldNode = GenerateQueryContinuation();
+            var rewriter = new IdentityRewriter();
+            var newNode = rewriter.Visit(oldNode);
+            
+            Assert.Same(oldNode, newNode);
+        }
+        
+        [Fact]
+        public void TestQueryConclusionTokenDeleteRewriter()
+        {
+            var oldNode = GenerateQueryConclusion();
+            var rewriter = new TokenDeleteRewriter();
+            var newNode = rewriter.Visit(oldNode);
+            
+            if(!oldNode.IsMissing)
+            {
+                Assert.NotEqual(oldNode, newNode);
+            }
+            
+            Assert.NotNull(newNode);
+            Assert.True(newNode.IsMissing, "No tokens => missing");
+        }
+        
+        [Fact]
+        public void TestQueryConclusionIdentityRewriter()
+        {
+            var oldNode = GenerateQueryConclusion();
             var rewriter = new IdentityRewriter();
             var newNode = rewriter.Visit(oldNode);
             
@@ -9214,7 +9259,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         
         private static QueryBodySyntax GenerateQueryBody()
         {
-            return SyntaxFactory.QueryBody(new SyntaxList<QueryClauseSyntax>(), GenerateSelectClause(), default(QueryContinuationSyntax));
+            return SyntaxFactory.QueryBody(new SyntaxList<QueryClauseSyntax>(), GenerateSelectClause(), default(QueryContinuationOrConclusionSyntax));
         }
         
         private static FromClauseSyntax GenerateFromClause()
@@ -9265,6 +9310,11 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         private static QueryContinuationSyntax GenerateQueryContinuation()
         {
             return SyntaxFactory.QueryContinuation(SyntaxFactory.Token(SyntaxKind.IntoKeyword), SyntaxFactory.Identifier("Identifier"), GenerateQueryBody());
+        }
+        
+        private static QueryConclusionSyntax GenerateQueryConclusion()
+        {
+            return SyntaxFactory.QueryConclusion(SyntaxFactory.Token(SyntaxKind.YieldKeyword), SyntaxFactory.Token(SyntaxKind.IntoKeyword), SyntaxFactory.Identifier("Identifier"), SyntaxFactory.Token(SyntaxKind.DoKeyword), GenerateIdentifierName());
         }
         
         private static OmittedArraySizeExpressionSyntax GenerateOmittedArraySizeExpression()
@@ -10625,8 +10675,8 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             
             Assert.NotNull(node.Clauses);
             Assert.NotNull(node.SelectOrGroup);
-            Assert.Null(node.Continuation);
-            var newNode = node.WithClauses(node.Clauses).WithSelectOrGroup(node.SelectOrGroup).WithContinuation(node.Continuation);
+            Assert.Null(node.ContinuationOrConclusion);
+            var newNode = node.WithClauses(node.Clauses).WithSelectOrGroup(node.SelectOrGroup).WithContinuationOrConclusion(node.ContinuationOrConclusion);
             Assert.Equal(node, newNode);
         }
         
@@ -10753,6 +10803,20 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.Equal(SyntaxKind.IdentifierToken, node.Identifier.Kind());
             Assert.NotNull(node.Body);
             var newNode = node.WithIntoKeyword(node.IntoKeyword).WithIdentifier(node.Identifier).WithBody(node.Body);
+            Assert.Equal(node, newNode);
+        }
+        
+        [Fact]
+        public void TestQueryConclusionFactoryAndProperties()
+        {
+            var node = GenerateQueryConclusion();
+            
+            Assert.Equal(SyntaxKind.YieldKeyword, node.YieldKeyword.Kind());
+            Assert.Equal(SyntaxKind.IntoKeyword, node.IntoKeyword.Kind());
+            Assert.Equal(SyntaxKind.IdentifierToken, node.Identifier.Kind());
+            Assert.Equal(SyntaxKind.DoKeyword, node.DoKeyword.Kind());
+            Assert.NotNull(node.Expression);
+            var newNode = node.WithYieldKeyword(node.YieldKeyword).WithIntoKeyword(node.IntoKeyword).WithIdentifier(node.Identifier).WithDoKeyword(node.DoKeyword).WithExpression(node.Expression);
             Assert.Equal(node, newNode);
         }
         
@@ -14298,6 +14362,32 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
         public void TestQueryContinuationIdentityRewriter()
         {
             var oldNode = GenerateQueryContinuation();
+            var rewriter = new IdentityRewriter();
+            var newNode = rewriter.Visit(oldNode);
+            
+            Assert.Same(oldNode, newNode);
+        }
+        
+        [Fact]
+        public void TestQueryConclusionTokenDeleteRewriter()
+        {
+            var oldNode = GenerateQueryConclusion();
+            var rewriter = new TokenDeleteRewriter();
+            var newNode = rewriter.Visit(oldNode);
+            
+            if(!oldNode.IsMissing)
+            {
+                Assert.NotEqual(oldNode, newNode);
+            }
+            
+            Assert.NotNull(newNode);
+            Assert.True(newNode.IsMissing, "No tokens => missing");
+        }
+        
+        [Fact]
+        public void TestQueryConclusionIdentityRewriter()
+        {
+            var oldNode = GenerateQueryConclusion();
             var rewriter = new IdentityRewriter();
             var newNode = rewriter.Visit(oldNode);
             

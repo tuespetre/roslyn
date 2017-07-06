@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
         {
             return
                 context.IsStatementContext ||
-                context.TargetToken.IsAfterYieldKeyword() ||
+                IsAfterValidYieldKeywordUsage(context) ||
                 IsAttributeContext(context, cancellationToken);
         }
 
@@ -27,6 +27,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
             return
                 context.IsMemberAttributeContext(SyntaxKindSet.ClassInterfaceStructTypeDeclarations, cancellationToken) ||
                 (context.SyntaxTree.IsScript() && context.IsTypeAttributeContext(cancellationToken));
+        }
+
+        private static bool IsAfterValidYieldKeywordUsage(CSharpSyntaxContext context)
+        {
+            return context.TargetToken.IsAfterYieldKeyword()
+                && !context.TargetToken.Parent.IsKind(SyntaxKind.QueryConclusion);
         }
     }
 }

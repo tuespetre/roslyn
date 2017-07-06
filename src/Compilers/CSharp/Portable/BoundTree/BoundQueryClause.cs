@@ -23,6 +23,12 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         public BoundExpression UnoptimizedForm { get; }
 
+        /// <summary>
+        /// Returns the value of <see cref="UnoptimizedForm"/>, or if that is null,
+        /// the value of <see cref="Value"/>.
+        /// </summary>
+        public BoundExpression UnoptimizedFormOrValue => UnoptimizedForm ?? Value;
+
         public BoundQueryClause(
             SyntaxNode syntax,
             BoundExpression value,

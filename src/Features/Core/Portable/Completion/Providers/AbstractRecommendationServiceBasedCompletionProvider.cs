@@ -87,7 +87,7 @@ namespace Microsoft.CodeAnalysis.Completion.Providers
 
         private static int ComputeSymbolMatchPriority(ISymbol symbol)
         {
-            if (symbol.MatchesKind(SymbolKind.Local, SymbolKind.Parameter, SymbolKind.RangeVariable))
+            if (symbol.MatchesKind(SymbolKind.Local, SymbolKind.Parameter, SymbolKind.RangeVariable, SymbolKind.QueryConclusionVariable))
             {
                 return SymbolMatchPriority.PreferLocalOrParameterOrRangeVariable;
             }

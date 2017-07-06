@@ -152,6 +152,11 @@ namespace Microsoft.CodeAnalysis.CSharp
                             return ((BoundRangeVariable)node).RangeVariableSymbol;
                         }
 
+                    case BoundKind.QueryConclusionVariable:
+                        {
+                            return ((BoundQueryConclusionVariable)node).QueryConclusionVariableSymbol;
+                        }
+
                     case BoundKind.EventAccess:
                         {
                             var eventAccess = (BoundEventAccess)node;

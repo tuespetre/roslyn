@@ -170,21 +170,33 @@ namespace Microsoft.CodeAnalysis.CSharp.Rename
                 Visit(fromClause);
             }
 
-            foreach (var child in body.ChildNodes().Where(c => c.Kind() != SyntaxKind.QueryContinuation))
+            foreach (var child in body.ChildNodes())
             {
-                Visit(child);
+                var kind = child.Kind();
+
+                if (kind != SyntaxKind.QueryContinuation && kind != SyntaxKind.QueryConclusion)
+                {
+                    Visit(child);
+                }
             }
 
             _tracker.RemoveIdentifiers(tokens);
 
             // And now we must visit the continuation
-            Visit(body.Continuation);
+            Visit(body.ContinuationOrConclusion);
         }
 
         public override void VisitQueryContinuation(QueryContinuationSyntax node)
         {
             _tracker.AddIdentifier(node.Identifier);
             VisitQueryInternal(null, node.Body);
+            _tracker.RemoveIdentifier(node.Identifier);
+        }
+
+        public override void VisitQueryConclusion(QueryConclusionSyntax node)
+        {
+            _tracker.AddIdentifier(node.Identifier);
+            Visit(node.Expression);
             _tracker.RemoveIdentifier(node.Identifier);
         }
 

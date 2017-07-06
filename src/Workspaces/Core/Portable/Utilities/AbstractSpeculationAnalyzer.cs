@@ -322,7 +322,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
 
                 switch (symbol.Kind)
                 {
-                    // SymbolEquivalenceComparer performs Location equality checks for Locals, Labels and RangeVariables.
+                    // SymbolEquivalenceComparer performs Location equality checks for Locals, Labels, RangeVariables and QueryConclusionVariables.
                     // As we are comparing symbols from different semantic models, locations will differ.
                     // Hence perform minimal checks for these symbol kinds.
                     case SymbolKind.Local:
@@ -333,6 +333,7 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
 
                     case SymbolKind.Label:
                     case SymbolKind.RangeVariable:
+                    case SymbolKind.QueryConclusionVariable:
                         return newSymbol.Kind == symbol.Kind && string.Equals(newSymbol.Name, symbol.Name, StringComparison.Ordinal);
 
                     case SymbolKind.Parameter:

@@ -2168,6 +2168,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                             expr = variableAccess.Value; //Check the underlying expression.
                             continue;
                         }
+                    case BoundKind.QueryConclusionVariable:
+                        {
+                            // see RangeVariable case
+                            expr = ((BoundQueryConclusionVariable)expr).Value;
+                            continue;
+                        }
                     case BoundKind.Parameter:
                         {
                             BoundParameter parameterAccess = (BoundParameter)expr;

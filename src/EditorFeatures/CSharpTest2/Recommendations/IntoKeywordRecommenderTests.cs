@@ -165,5 +165,13 @@ $$");
 @"var q = from x in y
           group x by $$"));
         }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestAfterQueryConclusionYieldKeyword()
+        {
+            await VerifyKeywordAsync(AddInsideMethod(
+@"var v = from x in y
+          select x yield $$"));
+        }
     }
 }

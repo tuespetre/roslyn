@@ -76,6 +76,15 @@ Namespace Microsoft.CodeAnalysis.VisualBasic.ExtractMethod
                 Return If(info.ConvertedType.IsObjectType(), info.ConvertedType, info.Type)
             End Function
 
+            Protected Overrides Function GetQueryConclusionVariableType(semanticModel As SemanticModel, symbol As IQueryConclusionVariableSymbol) As ITypeSymbol
+                Dim info = semanticModel.GetSpeculativeTypeInfo(Me.SelectionResult.FinalSpan.Start, SyntaxFactory.ParseName(symbol.Name), SpeculativeBindingOption.BindAsExpression)
+                If info.Type.IsErrorType() Then
+                    Return Nothing
+                End If
+
+                Return If(info.ConvertedType.IsObjectType(), info.ConvertedType, info.Type)
+            End Function
+
             Protected Overrides Function GetFlowAnalysisNodeRange() As Tuple(Of SyntaxNode, SyntaxNode)
                 Dim vbSelectionResult = DirectCast(Me.SelectionResult, VisualBasicSelectionResult)
 

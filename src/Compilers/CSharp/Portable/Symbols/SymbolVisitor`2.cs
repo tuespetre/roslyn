@@ -272,5 +272,17 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return DefaultVisit(symbol, argument);
         }
+
+        /// <summary>
+        /// Called when visiting a <see cref="QueryConclusionVariableSymbol" />; Override this with specific
+        /// implementation; Calling default <see cref="DefaultVisit" /> if it's not overridden 
+        /// </summary>
+        /// <param name="symbol">The visited symbol</param>
+        /// <param name="argument">Additional argument</param>
+        /// <returns></returns>
+        public virtual TResult VisitQueryConclusionVariable(QueryConclusionVariableSymbol symbol, TArgument argument)
+        {
+            return DefaultVisit(symbol, argument);
+        }
     }
 }

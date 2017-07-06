@@ -226,7 +226,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            Visit(node.Continuation);
+            Visit(node.ContinuationOrConclusion);
+        }
+
+        public override void VisitQueryConclusion(QueryConclusionSyntax node)
+        {
+            VisitNodeToBind(node.Expression);
         }
 
         public override void VisitBinaryExpression(BinaryExpressionSyntax node)

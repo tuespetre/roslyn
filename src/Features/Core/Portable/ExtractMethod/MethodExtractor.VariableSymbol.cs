@@ -305,9 +305,16 @@ namespace Microsoft.CodeAnalysis.ExtractMethod
 
         protected class QueryVariableSymbol : NotMovableVariableSymbol, IComparable<QueryVariableSymbol>
         {
-            private readonly IRangeVariableSymbol _symbol;
+            private readonly ISymbol _symbol;
 
             public QueryVariableSymbol(Compilation compilation, IRangeVariableSymbol symbol, ITypeSymbol type) :
+                base(compilation, type)
+            {
+                Contract.ThrowIfNull(symbol);
+                _symbol = symbol;
+            }
+
+            public QueryVariableSymbol(Compilation compilation, IQueryConclusionVariableSymbol symbol, ITypeSymbol type) :
                 base(compilation, type)
             {
                 Contract.ThrowIfNull(symbol);

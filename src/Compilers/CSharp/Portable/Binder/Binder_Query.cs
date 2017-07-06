@@ -57,7 +57,10 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             state.fromExpression = MakeQueryClause(fromClause, state.fromExpression, x, castInvocation: cast);
             BoundExpression result = BindQueryInternal1(state, diagnostics);
-            for (QueryContinuationSyntax continuation = node.Body.Continuation; continuation != null; continuation = continuation.Body.Continuation)
+
+            var continuationOrConclusion = node.Body.ContinuationOrConclusion;
+
+            while (continuationOrConclusion is QueryContinuationSyntax continuation)
             {
                 // A query expression with a continuation
                 //     from ... into x ...
@@ -77,9 +80,17 @@ namespace Microsoft.CodeAnalysis.CSharp
                 result = BindQueryInternal1(state, diagnostics);
                 result = MakeQueryClause(continuation.Body, result, x);
                 result = MakeQueryClause(continuation, result, x);
+
+                continuationOrConclusion = continuation.Body.ContinuationOrConclusion;
             }
 
             state.Free();
+
+            if (continuationOrConclusion is QueryConclusionSyntax conclusion)
+            {
+                result = MakeQueryConclusion(result, conclusion);
+            }
+
             return MakeQueryClause(node, result);
         }
 
@@ -791,6 +802,88 @@ namespace Microsoft.CodeAnalysis.CSharp
             result.WasCompilerGenerated = true;
             analyzedArguments.Free();
             return result;
+        }
+
+        private BoundExpression MakeQueryConclusion(BoundExpression boundExpression, QueryConclusionSyntax queryConclusionSyntax)
+        {
+            // A query conclusion is similar in function to an IIFE in Javascript.
+            // We need to construct a lambda and its immediate invocation.
+            // It will match the signature of Func<T1,TResult>. We have the type
+            // of T1 so we need to infer the type of TResult.
+
+            var genericDelegateType
+                = Compilation.GetWellKnownType(
+                    WellKnownTypes.GetWellKnownFunctionDelegate(1));
+
+            var fixedParameterTypeMap = new TypeMap(
+                ContainingMemberOrLambda.ContainingType,
+                typeParameters: genericDelegateType.TypeParameters,
+                typeArguments: ImmutableArray.Create(
+                    new TypeWithModifiers(boundExpression.Type),
+                    new TypeWithModifiers(genericDelegateType.TypeArguments[1], genericDelegateType.GetTypeArgumentCustomModifiers(1))));
+
+            var fixedParameterDelegateType
+                = fixedParameterTypeMap.SubstituteNamedType(genericDelegateType);
+
+            // We also need a symbol to represent the parameter.
+
+            var queryConclusionVariableSymbol
+                = new QueryConclusionVariableSymbol(
+                    queryConclusionSyntax.Identifier.ValueText,
+                    ContainingMemberOrLambda,
+                    queryConclusionSyntax.Identifier.GetLocation());
+
+            var unboundLambdaState
+                = new QueryConclusionUnboundLambdaState(
+                    queryConclusionSyntax,
+                    queryConclusionVariableSymbol,
+                    boundExpression.Type,
+                    this,
+                    unboundLambdaOpt: null);
+
+            var unboundLambda
+                = new UnboundLambda(queryConclusionSyntax.Expression, unboundLambdaState)
+                { WasCompilerGenerated = true };
+
+            unboundLambdaState.SetUnboundLambda(unboundLambda);
+
+            // Now we want to infer the return type of the unbound lambda
+            // and use it to get our completely fixed delegate type.
+
+            HashSet<DiagnosticInfo> useSiteDiagnostics = null;
+
+            var inferredReturnType
+                = unboundLambda.InferReturnType(fixedParameterDelegateType, ref useSiteDiagnostics)
+                    ?? CreateErrorType();
+
+            var fixedTypeMap = new TypeMap(
+                ContainingMemberOrLambda.ContainingType,
+                typeParameters: genericDelegateType.TypeParameters,
+                typeArguments: ImmutableArray.Create(
+                    new TypeWithModifiers(boundExpression.Type),
+                    new TypeWithModifiers(inferredReturnType, genericDelegateType.GetTypeArgumentCustomModifiers(1))));
+
+            var fixedDelegateType
+                = fixedTypeMap.SubstituteNamedType(genericDelegateType);
+
+            // With a fixed delegate type in hand, we can synthesize a bound call
+            // to the Invoke method on the lambda.
+
+            var boundLambda
+                = unboundLambda.Bind(fixedDelegateType);
+
+            var boundConversion
+                = BoundConversion.Synthesized(queryConclusionSyntax, boundLambda, Conversion.AnonymousFunction, false, true, null, fixedDelegateType);
+
+            var boundCall
+                = BoundCall.Synthesized(queryConclusionSyntax, boundConversion, fixedDelegateType.DelegateInvokeMethod, boundExpression);
+
+            return new BoundQueryConclusion(
+                queryConclusionSyntax,
+                boundCall,
+                queryConclusionVariableSymbol,
+                boundLambda.Binder,
+                inferredReturnType);
         }
     }
 }

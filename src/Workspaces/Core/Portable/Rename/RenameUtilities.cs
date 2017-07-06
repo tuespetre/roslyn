@@ -66,6 +66,7 @@ namespace Microsoft.CodeAnalysis.Rename
                 symbol.Kind == SymbolKind.Local ||
                 symbol.Kind == SymbolKind.Label ||
                 symbol.Kind == SymbolKind.RangeVariable ||
+                symbol.Kind == SymbolKind.QueryConclusionVariable ||
                 symbol.Kind == SymbolKind.Parameter;
         }
 

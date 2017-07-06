@@ -283,7 +283,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery
             }
 
             if (token.Kind() == SyntaxKind.IdentifierToken &&
-                token.GetPreviousToken(includeSkipped: true).Kind() == SyntaxKind.IntoKeyword)
+                token.GetPreviousToken(includeSkipped: true).Kind() == SyntaxKind.IntoKeyword &&
+                !token.Parent.IsKind(SyntaxKind.QueryConclusion))
             {
                 return true;
             }

@@ -2336,6 +2336,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery
                 }
             }
 
+            // select x yield into y do |
+            if (token.IsKind(SyntaxKind.DoKeyword) &&
+                token.Parent.IsKind(SyntaxKind.QueryConclusion))
+            {
+                return true;
+            }
+
             // return |
             // yield return |
             // but not: [return |

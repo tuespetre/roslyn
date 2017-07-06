@@ -159,6 +159,16 @@ namespace Microsoft.CodeAnalysis.CSharp
             return base.VisitQueryClause(node);
         }
 
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
+        {
+            if (IsInside)
+            {
+                _variablesDeclared.Add(node.DefinedSymbol);
+            }
+
+            return base.VisitQueryConclusion(node);
+        }
+
         protected override void VisitLvalue(BoundLocal node)
         {
             VisitLocal(node);

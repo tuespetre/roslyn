@@ -237,6 +237,10 @@ namespace Microsoft.CodeAnalysis.LanguageServices
                 {
                     AddDescriptionForProperty(property);
                 }
+                else if (symbol is IQueryConclusionVariableSymbol queryConclusionVariable)
+                {
+                    AddDescriptionForQueryConclusionVariable(queryConclusionVariable);
+                }
                 else if (symbol is IRangeVariableSymbol rangeVariable)
                 {
                     AddDescriptionForRangeVariable(rangeVariable);
@@ -472,6 +476,13 @@ namespace Microsoft.CodeAnalysis.LanguageServices
                 AddToGroup(SymbolDescriptionGroups.MainDescription,
                     Description(FeaturesResources.label),
                     ToMinimalDisplayParts(symbol));
+            }
+
+            private void AddDescriptionForQueryConclusionVariable(IQueryConclusionVariableSymbol symbol)
+            {
+                AddToGroup(SymbolDescriptionGroups.MainDescription,
+                   Description(FeaturesResources.query_conclusion_variable),
+                   ToMinimalDisplayParts(symbol));
             }
 
             private void AddDescriptionForRangeVariable(IRangeVariableSymbol symbol)

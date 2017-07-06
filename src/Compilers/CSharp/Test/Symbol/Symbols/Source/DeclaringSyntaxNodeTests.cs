@@ -680,6 +680,7 @@ class C
         IEnumerable<int> a = null;
         var y1 = from range1 in a let range2 = a.ToString() select range1 into range3 select range3 + 1;
         var y2 = from range4 in a join range5 in a on range4.ToString() equals range5.ToString() into range6 select range6;
+        var y3 = from range7 in a let range8 = a.ToString() select range7 yield into conclusion1 do conclusion1;
     }
 }
 ";
@@ -691,6 +692,9 @@ class C
             CheckDeclaringSyntax<QueryClauseSyntax>(comp, tree, "range4", SymbolKind.RangeVariable);
             CheckDeclaringSyntax<QueryClauseSyntax>(comp, tree, "range5", SymbolKind.RangeVariable);
             CheckDeclaringSyntax<JoinIntoClauseSyntax>(comp, tree, "range6", SymbolKind.RangeVariable);
+            CheckDeclaringSyntax<QueryClauseSyntax>(comp, tree, "range7", SymbolKind.RangeVariable);
+            CheckDeclaringSyntax<QueryClauseSyntax>(comp, tree, "range8", SymbolKind.RangeVariable);
+            CheckDeclaringSyntax<QueryConclusionSyntax>(comp, tree, "conclusion1", SymbolKind.QueryConclusionVariable);
         }
 
         [Fact]

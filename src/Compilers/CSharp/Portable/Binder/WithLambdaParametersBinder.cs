@@ -143,6 +143,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return true;
             }
 
+            if (newSymbolKind == SymbolKind.QueryConclusionVariable)
+            {
+                // The query conclusion variable '{0}' conflicts with a previous declaration of '{0}'
+                diagnostics.Add(ErrorCode.ERR_QueryConclusionVariableOverrides, newLocation, name);
+                return true;
+            }
+
             Debug.Assert(false, "what else could be defined in a lambda?");
             return false;
         }

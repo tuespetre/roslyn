@@ -56,6 +56,11 @@ namespace Microsoft.CodeAnalysis.ExtractMethod
             protected abstract ITypeSymbol GetRangeVariableType(SemanticModel model, IRangeVariableSymbol symbol);
 
             /// <summary>
+            /// get type of the query conclusion variable symbol
+            /// </summary>
+            protected abstract ITypeSymbol GetQueryConclusionVariableType(SemanticModel model, IQueryConclusionVariableSymbol symbol);
+
+            /// <summary>
             /// check whether the selection is at the placed where read-only field is allowed to be extracted out
             /// </summary>
             /// <returns></returns>
@@ -570,6 +575,12 @@ namespace Microsoft.CodeAnalysis.ExtractMethod
                     return GetRangeVariableType(model, rangeVariable);
                 }
 
+                var queryConclusionVariable = symbol as IQueryConclusionVariableSymbol;
+                if (queryConclusionVariable != null)
+                {
+                    return GetQueryConclusionVariableType(model, queryConclusionVariable);
+                }
+
                 return Contract.FailWithReturn<ITypeSymbol>("Shouldn't reach here");
             }
 
@@ -702,6 +713,14 @@ namespace Microsoft.CodeAnalysis.ExtractMethod
                     if (rangeVariable != null)
                     {
                         var type = GetRangeVariableType(model, rangeVariable);
+                        AddTypeParametersToMap(TypeParameterCollector.Collect(type), sortedMap);
+                        continue;
+                    }
+
+                    var queryConclusionVariable = symbol as IQueryConclusionVariableSymbol;
+                    if (queryConclusionVariable != null)
+                    {
+                        var type = GetQueryConclusionVariableType(model, queryConclusionVariable);
                         AddTypeParametersToMap(TypeParameterCollector.Collect(type), sortedMap);
                         continue;
                     }
@@ -933,6 +952,12 @@ namespace Microsoft.CodeAnalysis.ExtractMethod
                 if (rangeVariable != null)
                 {
                     return new VariableInfo(new QueryVariableSymbol(compilation, rangeVariable, type), style);
+                }
+
+                var queryConclusionVariable = symbol as IQueryConclusionVariableSymbol;
+                if (queryConclusionVariable != null)
+                {
+                    return new VariableInfo(new QueryVariableSymbol(compilation, queryConclusionVariable, type), style);
                 }
 
                 return Contract.FailWithReturn<VariableInfo>(FeaturesResources.Unknown);

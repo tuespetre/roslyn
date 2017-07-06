@@ -11003,7 +11003,7 @@ tryAgain:
             try
             {
                 SelectOrGroupClauseSyntax selectOrGroupBy = null;
-                QueryContinuationSyntax continuation = null;
+                QueryContinuationOrConclusionSyntax continuationOrConclusion = null;
 
                 // from, join, let, where and orderby
                 while (true)
@@ -11047,13 +11047,17 @@ tryAgain:
                         break;
                 }
 
-                // optional query continuation clause
+                // optional query continuation or conclusion clause
                 if (this.CurrentToken.ContextualKind == SyntaxKind.IntoKeyword)
                 {
-                    continuation = this.ParseQueryContinuation();
+                    continuationOrConclusion = this.ParseQueryContinuation();
+                }
+                else if (this.CurrentToken.ContextualKind == SyntaxKind.YieldKeyword)
+                {
+                    continuationOrConclusion = this.ParseQueryConclusion();
                 }
 
-                return _syntaxFactory.QueryBody(clauses, selectOrGroupBy, continuation);
+                return _syntaxFactory.QueryBody(clauses, selectOrGroupBy, continuationOrConclusion);
             }
             finally
             {
@@ -11234,6 +11238,17 @@ tryAgain:
             var name = this.ParseIdentifierToken();
             var body = this.ParseQueryBody();
             return _syntaxFactory.QueryContinuation(@into, name, body);
+        }
+
+        private QueryConclusionSyntax ParseQueryConclusion()
+        {
+            Debug.Assert(this.CurrentToken.ContextualKind == SyntaxKind.YieldKeyword);
+            var @yield = this.EatContextualToken(SyntaxKind.YieldKeyword);
+            var @into = this.EatContextualToken(SyntaxKind.IntoKeyword);
+            var identifier = this.ParseIdentifierToken();
+            var @do = this.EatContextualToken(SyntaxKind.DoKeyword);
+            var expression = this.ParseExpressionCore();
+            return _syntaxFactory.QueryConclusion(yield, @into, identifier, @do, expression);
         }
 
         private bool IsStrict => this.Options.Features.ContainsKey("strict");

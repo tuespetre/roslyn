@@ -94,6 +94,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Simplification
                     case SyntaxKind.ByKeyword:
                     case SyntaxKind.AscendingKeyword:
                     case SyntaxKind.DescendingKeyword:
+                    case SyntaxKind.YieldKeyword:
                         return CreateNewIdentifierTokenFromToken(token, escape: true);
                 }
             }

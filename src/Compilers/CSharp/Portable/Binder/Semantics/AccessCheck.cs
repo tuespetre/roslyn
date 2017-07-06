@@ -113,6 +113,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SymbolKind.Assembly:
                 case SymbolKind.NetModule:
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                     // These types of symbols are always accessible (if visible).
                     return true;
 

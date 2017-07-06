@@ -809,7 +809,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
                         node is UsingDirectiveSyntax ||
                         node is ExternAliasDirectiveSyntax ||
                         node is QueryExpressionSyntax ||
-                        node is QueryContinuationSyntax)
+                        node is QueryContinuationOrConclusionSyntax)
                     {
                         return parentDepth + 1;
                     }

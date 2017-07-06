@@ -153,5 +153,10 @@ namespace Microsoft.CodeAnalysis.ExpressionEvaluator
         {
             throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
         }
+
+        public override void VisitQueryConclusionVariable(IQueryConclusionVariableSymbol symbol)
+        {
+            throw ExceptionUtilities.UnexpectedValue(symbol.Kind);
+        }
     }
 }

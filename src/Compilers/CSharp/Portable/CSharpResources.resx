@@ -5111,4 +5111,19 @@ To remove the warning, you can use /reference instead (set the Embed Interop Typ
   <data name="ERR_InvalidDebugInfo" xml:space="preserve">
     <value>Unable to read debug information of method '{0}' (token 0x{1:X8}) from assembly '{2}'</value>
   </data>
+  <data name="ERR_QueryConclusionVariableOverrides" xml:space="preserve">
+    <value>The query conclusion variable '{0}' conflicts with a previous declaration of '{0}'</value>
+  </data>
+  <data name="ERR_QueryConclusionVariableReadOnly" xml:space="preserve">
+    <value>Query conclusion variable '{0}' cannot be assigned to -- it is read only</value>
+  </data>
+  <data name="ERR_QueryConclusionVariableSameAsTypeParam" xml:space="preserve">
+    <value>The query conclusion variable '{0}' cannot have the same name as a method type parameter</value>
+  </data>
+  <data name="ERR_QueryConclusionVariableRefOrOut" xml:space="preserve">
+    <value>Cannot pass the query conclusion variable '{0}' as an out or ref parameter</value>
+  </data>
+  <data name="ERR_QueryConclusionVariableRefReturn" xml:space="preserve">
+    <value>Cannot return the query conclusion variable '{0}' by reference</value>
+  </data>
 </root>

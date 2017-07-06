@@ -163,6 +163,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var groupClause = (GroupClauseSyntax)parent;
                     return (groupClause.GroupExpression == node && (allowReducedLambdas || !IsReducedSelectOrGroupByClause(groupClause, groupClause.GroupExpression))) ||
                            groupClause.ByExpression == node;
+
+                case SyntaxKind.QueryConclusion:
+                    var queryConclusion = (QueryConclusionSyntax)parent;
+                    return queryConclusion.Expression == node;
             }
 
             return false;

@@ -140,6 +140,7 @@ namespace Microsoft.CodeAnalysis.Shared.Extensions
                     break;
 
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                     return Glyph.RangeVariable;
 
                 case SymbolKind.TypeParameter:

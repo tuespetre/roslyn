@@ -88,6 +88,7 @@ namespace Microsoft.CodeAnalysis.Editor.UnitTests.Extensions
             TestGlyph(StandardGlyphGroup.GlyphGroupVariable, SymbolKind.Parameter);
             TestGlyph(StandardGlyphGroup.GlyphGroupVariable, SymbolKind.Local);
             TestGlyph(StandardGlyphGroup.GlyphGroupVariable, SymbolKind.RangeVariable);
+            TestGlyph(StandardGlyphGroup.GlyphGroupVariable, SymbolKind.QueryConclusionVariable);
             TestGlyph(StandardGlyphGroup.GlyphGroupIntrinsic, SymbolKind.Label);
             TestGlyph(StandardGlyphGroup.GlyphGroupEvent, SymbolKind.Event);
 

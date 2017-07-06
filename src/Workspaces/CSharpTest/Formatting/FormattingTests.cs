@@ -4368,6 +4368,62 @@ class C
         }
 
         [Fact]
+        [Trait(Traits.Feature, Traits.Features.Formatting)]
+        public async Task QueryConclusion()
+        {
+            var code = @"using System.Linq;
+class C
+{
+    static void Main(string[] args)
+    {
+        var temp = from x in ""abc""
+                   let z = x.ToString()
+                   select z yield into w
+        do w;
+    }
+}";
+
+            var expected = @"using System.Linq;
+class C
+{
+    static void Main(string[] args)
+    {
+        var temp = from x in ""abc""
+                   let z = x.ToString()
+                   select z yield into w
+                   do w;
+    }
+}";
+            await AssertFormatAsync(expected, code);
+        }
+
+        [Fact]
+        [Trait(Traits.Feature, Traits.Features.Formatting)]
+        public async Task QueryConclusion2()
+        {
+            var code = @"using System.Linq;
+class C
+{
+    static void Main(string[] args)
+    {
+        var temp = from x in ""abc"" select x yield into y do
+    }
+}";
+
+            var expected = @"using System.Linq;
+class C
+{
+    static void Main(string[] args)
+    {
+        var temp = from x in ""abc""
+                   select x yield into y
+                   do
+    }
+}";
+            await AssertFormatAsync(expected, code);
+        }
+
+        [Fact]
         [WorkItem(542305, "http://vstfdevdiv:8080/DevDiv2/DevDiv/_workitems/edit/542305")]
         [Trait(Traits.Feature, Traits.Features.Formatting)]
         public async Task AttributeFormatting1()

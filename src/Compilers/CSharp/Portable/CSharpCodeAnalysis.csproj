@@ -38,6 +38,8 @@
   <ItemGroup>
     <Compile Include="Binder\AliasAndExternAliasDirective.cs" />
     <Compile Include="Binder\AliasAndUsingDirective.cs" />
+    <Compile Include="Binder\WithQueryConclusionParametersBinder.cs" />
+    <Compile Include="Binder\QueryConclusionUnboundLambdaState.cs" />
     <Compile Include="Binder\Binder.cs" />
     <Compile Include="Binder\Binder.OverflowChecks.cs" />
     <Compile Include="Binder\Binder.QueryTranslationState.cs" />
@@ -509,6 +511,7 @@
     <Compile Include="Symbols\AnonymousTypes\SynthesizedSymbols\AnonymousType.TypeParameterSymbol.cs" />
     <Compile Include="Symbols\DiscardSymbol.cs" />
     <Compile Include="Symbols\Metadata\PE\TupleTypeDecoder.cs" />
+    <Compile Include="Symbols\QueryConclusionVariableSymbol.cs" />
     <Compile Include="Symbols\Source\GlobalExpressionVariable.cs" />
     <Compile Include="Symbols\Source\SourceMethodSymbol.cs" />
     <Compile Include="Symbols\Tuples\TupleEventSymbol.cs" />

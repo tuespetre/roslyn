@@ -23,6 +23,7 @@ namespace Microsoft.CodeAnalysis.FindSymbols.Finders
         public static readonly IReferenceFinder Parameter = new ParameterSymbolReferenceFinder();
         public static readonly IReferenceFinder Property = new PropertySymbolReferenceFinder();
         public static readonly IReferenceFinder PropertyAccessor = new PropertyAccessorSymbolReferenceFinder();
+        public static readonly IReferenceFinder QueryConclusionVariable = new QueryConclusionVariableSymbolReferenceFinder();
         public static readonly IReferenceFinder RangeVariable = new RangeVariableSymbolReferenceFinder();
         public static readonly IReferenceFinder TypeParameter = new TypeParameterSymbolReferenceFinder();
 
@@ -53,6 +54,7 @@ namespace Microsoft.CodeAnalysis.FindSymbols.Finders
                 Parameter,
                 Property,
                 PropertyAccessor,
+                QueryConclusionVariable,
                 RangeVariable,
                 TypeParameter);
             DefaultReferenceFinders = DefaultRenameReferenceFinders.Add(ConstructorInitializer);

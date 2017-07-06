@@ -18,7 +18,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
         {
             return
                 IsInBreakableConstructContext(context) ||
-                context.TargetToken.IsAfterYieldKeyword();
+                IsAfterValidYieldKeywordUsage(context);
         }
 
         private static bool IsInBreakableConstructContext(CSharpSyntaxContext context)
@@ -47,6 +47,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.KeywordRecommenders
             }
 
             return false;
+        }
+
+        private static bool IsAfterValidYieldKeywordUsage(CSharpSyntaxContext context)
+        {
+            return context.TargetToken.IsAfterYieldKeyword()
+                && !context.TargetToken.Parent.IsKind(SyntaxKind.QueryConclusion);
         }
     }
 }

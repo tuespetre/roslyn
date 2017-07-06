@@ -136,6 +136,8 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
                         return PointerTypesAreEquivalent((IPointerTypeSymbol)x, (IPointerTypeSymbol)y, equivalentTypesWithDifferingAssemblies);
                     case SymbolKind.Property:
                         return PropertiesAreEquivalent((IPropertySymbol)x, (IPropertySymbol)y, equivalentTypesWithDifferingAssemblies);
+                    case SymbolKind.QueryConclusionVariable:
+                        return QueryConclusionVariablesAreEquivalent((IQueryConclusionVariableSymbol)x, (IQueryConclusionVariableSymbol)y);
                     case SymbolKind.RangeVariable:
                         return RangeVariablesAreEquivalent((IRangeVariableSymbol)x, (IRangeVariableSymbol)y);
                     case SymbolKind.TypeParameter:
@@ -594,6 +596,11 @@ namespace Microsoft.CodeAnalysis.Shared.Utilities
                 }
 
                 return AreEquivalent(x.ContainingSymbol, y.ContainingSymbol, equivalentTypesWithDifferingAssemblies);
+            }
+
+            private bool QueryConclusionVariablesAreEquivalent(IQueryConclusionVariableSymbol x, IQueryConclusionVariableSymbol y)
+            {
+                return HaveSameLocation(x, y);
             }
 
             private bool RangeVariablesAreEquivalent(IRangeVariableSymbol x, IRangeVariableSymbol y)

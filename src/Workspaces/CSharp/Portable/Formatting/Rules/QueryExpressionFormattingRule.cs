@@ -109,6 +109,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
             {
                 AddAnchorIndentationOperation(list, continuation.IntoKeyword, continuation.GetLastToken(includeZeroWidth: true));
             }
+
+            var conclusion = node as QueryConclusionSyntax;
+            if (conclusion != null)
+            {
+                AddAnchorIndentationOperation(list, conclusion.YieldKeyword, conclusion.GetLastToken(includeZeroWidth: true));
+            }
         }
 
         public override AdjustNewLinesOperation GetAdjustNewLinesOperation(SyntaxToken previousToken, SyntaxToken currentToken, OptionSet optionSet, NextOperation<AdjustNewLinesOperation> nextOperation)
@@ -133,6 +139,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Formatting
                 case SyntaxKind.OrderByKeyword:
                 case SyntaxKind.GroupKeyword:
                 case SyntaxKind.SelectKeyword:
+                case SyntaxKind.DoKeyword when currentToken.Parent is QueryConclusionSyntax:
                     if (currentToken.GetAncestor<QueryExpressionSyntax>() != null)
                     {
                         if (optionSet.GetOption(CSharpFormattingOptions.NewLineForClausesInQuery))

@@ -424,7 +424,8 @@ namespace My
                             select new { Country = g.Key, CustCount = g.Count() };
             query = from c in customers
                     select c into d
-                    select d;
+                    select d yield into ds
+                    do ds.ToList();
         }
         ~A()
         {

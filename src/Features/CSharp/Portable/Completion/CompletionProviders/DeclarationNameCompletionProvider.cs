@@ -97,6 +97,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Completion.Providers
                     publicIcon = Glyph.PropertyPublic;
                     break;
                 case SymbolKind.RangeVariable:
+                case SymbolKind.QueryConclusionVariable:
                     publicIcon = Glyph.RangeVariable;
                     break;
                 case SymbolKind.TypeParameter:

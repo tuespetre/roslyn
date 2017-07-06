@@ -150,8 +150,8 @@ namespace Microsoft.VisualStudio.LanguageServices.CSharp.LanguageService
                 symbol = ((ILocalSymbol)symbol).Type;
             }
 
-            // Range variable: use the type
-            if (symbol is IRangeVariableSymbol)
+            // Query variable: use the type
+            if (symbol is IRangeVariableSymbol || symbol is IQueryConclusionVariableSymbol)
             {
                 var info = semanticModel.GetTypeInfo(token.Parent, cancellationToken);
                 symbol = info.Type;

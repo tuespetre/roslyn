@@ -407,6 +407,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SymbolKind.Label:
                     case SymbolKind.Alias:
                     case SymbolKind.RangeVariable:
+                    case SymbolKind.QueryConclusionVariable:
                         // never imported, and always references by name.
                         return true;
 
@@ -1162,6 +1163,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                         return SymbolKind.NetModule;
                     case SymbolKind.RangeVariable:
                         return SymbolKind.RangeVariable;
+                    case SymbolKind.QueryConclusionVariable:
+                        return SymbolKind.QueryConclusionVariable;
                     default:
                         throw ExceptionUtilities.UnexpectedValue(this.Kind);
                 }

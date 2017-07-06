@@ -230,7 +230,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                         // or group clause of the query body.
                         var identifierName = SyntaxFactory.IdentifierName(symbol.Name);
                         type = semanticModelOpt.GetSpeculativeTypeInfo(
-                            queryBody.SelectOrGroup.Span.End - 1, identifierName, SpeculativeBindingOption.BindAsExpression).Type;
+                            queryBody.SelectOrGroup.Span.End - 1, 
+                            identifierName, 
+                            SpeculativeBindingOption.BindAsExpression).Type;
                     }
 
                     var identifier = token.Parent as IdentifierNameSyntax;
@@ -242,6 +244,36 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
 
             return type;
+        }
+
+        private ITypeSymbol GetQueryConclusionVariableType(IQueryConclusionVariableSymbol symbol)
+        {
+            if (IsMinimizing && !symbol.Locations.IsEmpty)
+            {
+                var location = symbol.Locations.First();
+
+                if (location.IsInSource && location.SourceTree == semanticModelOpt.SyntaxTree)
+                {
+                    var token = location.SourceTree.GetRoot().FindToken(positionOpt);
+
+                    if (token.Parent is QueryConclusionSyntax queryConclusionSyntax)
+                    {
+                        var speculativeTypeInfo
+                            = semanticModelOpt.GetSpeculativeTypeInfo(
+                                queryConclusionSyntax.SpanStart,
+                                SyntaxFactory.IdentifierName(symbol.Name),
+                                SpeculativeBindingOption.BindAsExpression);
+
+                        return speculativeTypeInfo.Type;
+                    }
+                    else if (token.Parent is IdentifierNameSyntax identifierNameSyntax)
+                    {
+                        return semanticModelOpt.GetTypeInfo(identifierNameSyntax).Type;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static QueryBodySyntax GetQueryBody(SyntaxToken token)

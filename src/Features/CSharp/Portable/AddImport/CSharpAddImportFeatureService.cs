@@ -142,7 +142,7 @@ namespace Microsoft.CodeAnalysis.CSharp.AddImport
                 return false;
             }
 
-            return node.AncestorsAndSelf().Any(n => n is QueryExpressionSyntax && !(n.Parent is QueryContinuationSyntax));
+            return node.AncestorsAndSelf().Any(n => n is QueryExpressionSyntax && !(n.Parent is QueryContinuationOrConclusionSyntax));
         }
 
         protected override bool CanAddImportForType(string diagnosticId, SyntaxNode node, out SimpleNameSyntax nameNode)

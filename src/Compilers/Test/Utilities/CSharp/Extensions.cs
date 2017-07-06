@@ -543,7 +543,7 @@ internal static class Extensions
             declaration is NamespaceDeclarationSyntax ||
             declaration is ParameterSyntax ||
             declaration is QueryClauseSyntax ||
-            declaration is QueryContinuationSyntax ||
+            declaration is QueryContinuationOrConclusionSyntax ||
             declaration is SwitchLabelSyntax ||
             declaration is TypeParameterSyntax ||
             declaration is UsingDirectiveSyntax ||

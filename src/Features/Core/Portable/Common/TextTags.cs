@@ -36,5 +36,6 @@ namespace Microsoft.CodeAnalysis
         public const string Text = nameof(Text);
         public const string TypeParameter = nameof(TypeParameter);
         public const string RangeVariable = nameof(RangeVariable);
+        public const string QueryConclusionVariable = nameof(QueryConclusionVariable);
     }
 }

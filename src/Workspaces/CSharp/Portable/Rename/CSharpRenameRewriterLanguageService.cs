@@ -538,7 +538,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Rename
                     {
                         var symbol = _speculativeModel.GetSymbolInfo(token.Parent, _cancellationToken).Symbol;
 
-                        if (symbol != null && _renamedSymbol.Kind != SymbolKind.Local && _renamedSymbol.Kind != SymbolKind.RangeVariable &&
+                        if (symbol != null && _renamedSymbol.Kind != SymbolKind.Local && _renamedSymbol.Kind != SymbolKind.RangeVariable && _renamedSymbol.Kind != SymbolKind.QueryConclusionVariable &&
                             (symbol == _renamedSymbol || SymbolKey.GetComparer(ignoreCase: true, ignoreAssemblyKeys: false).Equals(symbol.GetSymbolKey(), _renamedSymbol.GetSymbolKey())))
                         {
                             return true;
@@ -811,7 +811,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Rename
 
                 if (renamedSymbol.Kind == SymbolKind.Parameter ||
                     renamedSymbol.Kind == SymbolKind.Local ||
-                    renamedSymbol.Kind == SymbolKind.RangeVariable)
+                    renamedSymbol.Kind == SymbolKind.RangeVariable ||
+                    renamedSymbol.Kind == SymbolKind.QueryConclusionVariable)
                 {
                     var token = renamedSymbol.Locations.Single().FindToken(cancellationToken);
 

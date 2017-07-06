@@ -131,7 +131,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         IDS_FeatureInferredTupleNames = MessageBase + 12719,
         IDS_FeatureGenericPatternMatching = MessageBase + 12720,
         IDS_FeatureAsyncMain = MessageBase + 12721,
-        IDS_LangVersions = MessageBase +  12722,
+        IDS_LangVersions = MessageBase + 12722,
+
+        IDS_FeatureQueryConclusions = MessageBase + 12723,
     }
 
     // Message IDs may refer to strings that need to be localized.
@@ -188,6 +190,10 @@ namespace Microsoft.CodeAnalysis.CSharp
             // Checks are in the LanguageParser unless otherwise noted.
             switch (feature)
             {
+                // C# ??? Features
+                case MessageID.IDS_FeatureQueryConclusions:
+                    return LanguageVersion.CSharp7_2;
+
                 // C# 7.1 features.
                 case MessageID.IDS_FeatureAsyncMain:
                 case MessageID.IDS_FeatureDefaultLiteral:

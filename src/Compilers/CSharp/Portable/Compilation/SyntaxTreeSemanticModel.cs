@@ -479,6 +479,13 @@ namespace Microsoft.CodeAnalysis.CSharp
             return (model == null) ? null : model.GetDeclaredSymbol(node, cancellationToken);
         }
 
+        public override IQueryConclusionVariableSymbol GetDeclaredSymbol(QueryConclusionSyntax node, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            CheckSyntaxNode(node);
+            var model = this.GetMemberModel(node);
+            return (model == null) ? null : model.GetDeclaredSymbol(node, cancellationToken);
+        }
+
         public override SymbolInfo GetSymbolInfo(OrderingSyntax node, CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckSyntaxNode(node);

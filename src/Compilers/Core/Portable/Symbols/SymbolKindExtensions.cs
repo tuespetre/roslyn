@@ -42,14 +42,16 @@ namespace Microsoft.CodeAnalysis
                     return 13;
                 case SymbolKind.RangeVariable:
                     return 14;
-                case SymbolKind.TypeParameter:
+                case SymbolKind.QueryConclusionVariable:
                     return 15;
-                case SymbolKind.PointerType:
+                case SymbolKind.TypeParameter:
                     return 16;
-                case SymbolKind.DynamicType:
+                case SymbolKind.PointerType:
                     return 17;
-                case SymbolKind.Preprocessing:
+                case SymbolKind.DynamicType:
                     return 18;
+                case SymbolKind.Preprocessing:
+                    return 19;
                 default:
                     throw ExceptionUtilities.UnexpectedValue(kind);
             }

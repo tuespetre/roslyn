@@ -2401,6 +2401,15 @@ namespace Microsoft.CodeAnalysis {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to query conclusion variable.
+        /// </summary>
+        internal static string query_conclusion_variable {
+            get {
+                return ResourceManager.GetString("query_conclusion_variable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to range variable.
         /// </summary>
         internal static string range_variable {

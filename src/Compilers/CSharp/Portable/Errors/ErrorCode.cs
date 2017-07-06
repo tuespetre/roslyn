@@ -1497,5 +1497,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_FeatureNotAvailableInVersion7_2 = 8320,
         WRN_UnreferencedLocalFunction = 8321,
         #endregion diagnostics introduced for C# 7.2
+
+        ERR_QueryConclusionVariableReadOnly = 8330,
+        ERR_QueryConclusionVariableOverrides = 8331,
+        ERR_QueryConclusionVariableSameAsTypeParam = 8332,
+        ERR_QueryConclusionVariableRefOrOut = 8333,
+        ERR_QueryConclusionVariableRefReturn = 8334,
     }
 }

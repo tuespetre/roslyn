@@ -17,5 +17,15 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             return VisitExpression(node.Value);
         }
+
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            return VisitExpression(node.Value);
+        }
+
+        public override BoundNode VisitQueryConclusion(BoundQueryConclusion node)
+        {
+            return VisitExpression(node.Value);
+        }
     }
 }

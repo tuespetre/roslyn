@@ -238,6 +238,27 @@ namespace Microsoft.CodeAnalysis.CSharp
             builder.Add(CreatePart(SymbolDisplayPartKind.RangeVariableName, symbol, symbol.Name));
         }
 
+        public override void VisitQueryConclusionVariable(IQueryConclusionVariableSymbol symbol)
+        {
+            if (format.LocalOptions.IncludesOption(SymbolDisplayLocalOptions.IncludeType))
+            {
+                ITypeSymbol type = GetQueryConclusionVariableType(symbol);
+
+                if (type != null && type.TypeKind != TypeKind.Error)
+                {
+                    type.Accept(this);
+                }
+                else
+                {
+                    builder.Add(CreatePart(SymbolDisplayPartKind.ErrorTypeName, type, "?"));
+                }
+
+                AddSpace();
+            }
+
+            builder.Add(CreatePart(SymbolDisplayPartKind.QueryConclusionVariableName, symbol, symbol.Name));
+        }
+
         public override void VisitLabel(ILabelSymbol symbol)
         {
             builder.Add(CreatePart(SymbolDisplayPartKind.LabelName, symbol, symbol.Name));

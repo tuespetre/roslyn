@@ -389,6 +389,12 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var access = (ConditionalAccessExpressionSyntax)syntax;
                     return IsStatementExpression(access.WhenNotNull);
 
+                case QueryExpression:
+                    var query = (QueryExpressionSyntax)syntax;
+                    return !query.Body.IsMissing
+                        && query.Body.ContinuationOrConclusion is QueryConclusionSyntax conclusion
+                        && IsStatementExpression(conclusion.Expression);
+
                 // Allow missing IdentifierNames; they will show up in error cases
                 // where there is no statement whatsoever.
 

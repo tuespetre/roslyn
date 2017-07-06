@@ -218,6 +218,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                     var rangeVar1 = expr1 as BoundRangeVariable;
                     var rangeVar2 = expr2 as BoundRangeVariable;
                     return rangeVar1.RangeVariableSymbol == rangeVar2.RangeVariableSymbol;
+                case BoundKind.QueryConclusionVariable:
+                    var conclusionVar1 = expr1 as BoundQueryConclusionVariable;
+                    var conclusionVar2 = expr2 as BoundQueryConclusionVariable;
+                    return conclusionVar1.QueryConclusionVariableSymbol == conclusionVar2.QueryConclusionVariableSymbol;
                 case BoundKind.ThisReference:
                 case BoundKind.PreviousSubmissionReference:
                 case BoundKind.HostObjectMemberReference:

@@ -20,7 +20,7 @@ namespace Microsoft.CodeAnalysis.IntroduceVariable
 
                 // If refer to a query property, then we use the query context instead.
                 var bindingMap = GetSemanticMap(cancellationToken);
-                if (bindingMap.AllReferencedSymbols.Any(s => s is IRangeVariableSymbol))
+                if (bindingMap.AllReferencedSymbols.Any(s => s is IRangeVariableSymbol || s is IQueryConclusionVariableSymbol))
                 {
                     return false;
                 }

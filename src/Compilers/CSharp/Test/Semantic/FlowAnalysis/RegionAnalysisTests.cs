@@ -4444,6 +4444,60 @@ class Program
             Assert.Equal("nums, q2, x", GetSymbolNamesJoined(dataFlowAnalysisResults.WrittenOutside));
         }
 
+        [Fact]
+        public void QueryExpression06()
+        {
+            var analysisResults = CompileAndAnalyzeControlAndDataFlowStatements(@"
+using System;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        var nums = new sbyte[] { 1, 2, 3, 4 };
+/*<bind>*/ 
+        var q2 = from int x in nums where x < 3 select x yield into xs do xs.ToArray();
+/*</bind>*/
+    }
+}");
+            var dataFlowAnalysisResults = analysisResults.Item2;
+            Assert.Equal("q2, x, xs", GetSymbolNamesJoined(dataFlowAnalysisResults.VariablesDeclared));
+            Assert.Equal("q2", GetSymbolNamesJoined(dataFlowAnalysisResults.AlwaysAssigned));
+            Assert.Equal("nums", GetSymbolNamesJoined(dataFlowAnalysisResults.DataFlowsIn));
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.DataFlowsOut));
+            Assert.Equal("nums, x, xs", GetSymbolNamesJoined(dataFlowAnalysisResults.ReadInside));
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.ReadOutside));
+            Assert.Equal("q2, x, xs", GetSymbolNamesJoined(dataFlowAnalysisResults.WrittenInside));
+            Assert.Equal("nums", GetSymbolNamesJoined(dataFlowAnalysisResults.WrittenOutside));
+        }
+
+        [Fact]
+        public void QueryExpression07()
+        {
+            var dataFlowAnalysisResults = CompileAndAnalyzeDataFlowExpression(@"
+using System;
+using System.Linq;
+
+class Program
+{
+    static void Main()
+    {
+        var nums = new sbyte[] { 1, 2, 3, 4 };
+        var q2 = from int x in nums where x < 3 select x yield into xs do /*<bind>*/ xs.ToArray() /*</bind>*/;
+    }
+}");
+
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.VariablesDeclared));
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.AlwaysAssigned));
+            Assert.Equal("xs", GetSymbolNamesJoined(dataFlowAnalysisResults.DataFlowsIn));
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.DataFlowsOut));
+            Assert.Equal("xs", GetSymbolNamesJoined(dataFlowAnalysisResults.ReadInside));
+            Assert.Equal("nums, x", GetSymbolNamesJoined(dataFlowAnalysisResults.ReadOutside));
+            Assert.Equal(null, GetSymbolNamesJoined(dataFlowAnalysisResults.WrittenInside));
+            Assert.Equal("nums, q2, x, xs", GetSymbolNamesJoined(dataFlowAnalysisResults.WrittenOutside));
+        }
+
         [WorkItem(541916, "http://vstfdevdiv:8080/DevDiv2/DevDiv/_workitems/edit/541916")]
         [Fact]
         public void ForEachVariableInQueryExpr()

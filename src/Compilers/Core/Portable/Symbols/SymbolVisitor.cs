@@ -93,6 +93,11 @@ namespace Microsoft.CodeAnalysis
             DefaultVisit(symbol);
         }
 
+        public virtual void VisitQueryConclusionVariable(IQueryConclusionVariableSymbol symbol)
+        {
+            DefaultVisit(symbol);
+        }
+
         public virtual void VisitRangeVariable(IRangeVariableSymbol symbol)
         {
             DefaultVisit(symbol);

@@ -50,6 +50,27 @@ class Query
 }";
             CompileAndVerify(csSource, expectedOutput: "[1, 2, 3, 4, 5, 6, 7]");
         }
+        
+        [Fact]
+        public void QueryConclusion()
+        {
+            var csSource = LINQ + @"
+class Query
+{
+    public static void Main(string[] args)
+    {
+        List1<int> a = new List1<int>(1, 2, 3);
+        List1<int> b = new List1<int>(4, 5, 6);
+        List1<int> c = from i1 in a
+                       select i1 yield into i1s
+                       do from i2 in b
+                          select i2 yield into i2s
+                          do new List1<int>(i1s.Get(0), i1s.Get(1), i1s.Get(2), i2s.Get(0), i2s.Get(1), i2s.Get(2));
+        Console.WriteLine(c);
+    }
+}";
+            CompileAndVerify(csSource, expectedOutput: "[1, 2, 3, 4, 5, 6]");
+        }
 
         [WorkItem(9229, "DevDiv_Projects/Roslyn")]
         [Fact]
@@ -883,6 +904,33 @@ public class Test2
             Assert.NotNull(symbol);
             Assert.Equal("w", symbol.Name);
             Assert.Equal(SymbolKind.RangeVariable, symbol.Kind);
+        }
+        
+        [Fact]
+        public void GetDeclaredSymbolForQueryConclusion()
+        {
+            string sourceCode = @"
+public class Test2
+{
+    public static void Main()
+    {
+        var nums = new int[] { 1, 2, 3, 4 };
+
+        var q2 = from x in nums
+                 select x yield into w
+                 do w;
+    }
+}";
+            var compilation = CreateCompilationWithMscorlibAndSystemCore(sourceCode);
+            var tree = compilation.SyntaxTrees[0];
+            var semanticModel = compilation.GetSemanticModel(tree);
+
+            var queryConclusion = tree.GetRoot().FindToken(sourceCode.IndexOf("yield into w", StringComparison.Ordinal)).Parent;
+            var symbol = semanticModel.GetDeclaredSymbol(queryConclusion);
+
+            Assert.NotNull(symbol);
+            Assert.Equal("w", symbol.Name);
+            Assert.Equal(SymbolKind.QueryConclusionVariable, symbol.Kind);
         }
 
         [WorkItem(541899, "http://vstfdevdiv:8080/DevDiv2/DevDiv/_workitems/edit/541899")]
@@ -1999,12 +2047,51 @@ public class Test2
             Assert.True(success);
 
             var queryExpression = (QueryExpressionSyntax)((LocalDeclarationStatementSyntax)queryStatement).Declaration.Variables[0].Initializer.Value;
-            var queryContinuation = queryExpression.Body.Continuation;
+            var queryContinuation = (QueryContinuationSyntax)queryExpression.Body.ContinuationOrConclusion;
             var symbol = speculativeModel.GetDeclaredSymbol(queryContinuation);
 
             Assert.NotNull(symbol);
             Assert.Equal("w", symbol.Name);
             Assert.Equal(SymbolKind.RangeVariable, symbol.Kind);
+        }
+
+        [Fact]
+        public void TestSpeculativeSemanticModel_GetDeclaredSymbolForQueryConclusion()
+        {
+            string sourceCode = @"
+public class Test2
+{
+    public static void Main()
+    {
+        var nums = new int[] { 1, 2, 3, 4 };
+    }
+}";
+            var speculatedSource = @"
+                var q2 = from x in nums
+                         select x yield into w
+                         do w;
+";
+
+            var queryStatement = SyntaxFactory.ParseStatement(speculatedSource);
+
+            var compilation = CreateCompilationWithMscorlibAndSystemCore(sourceCode);
+            compilation.VerifyDiagnostics();
+            var tree = compilation.SyntaxTrees[0];
+            var model = compilation.GetSemanticModel(tree);
+            var classC = tree.GetCompilationUnitRoot().ChildNodes().OfType<TypeDeclarationSyntax>().Where(t => t.Identifier.ValueText == "Test2").Single();
+            var methodM = (MethodDeclarationSyntax)classC.Members[0];
+
+            SemanticModel speculativeModel;
+            bool success = model.TryGetSpeculativeSemanticModel(methodM.Body.Statements[0].Span.End, queryStatement, out speculativeModel);
+            Assert.True(success);
+
+            var queryExpression = (QueryExpressionSyntax)((LocalDeclarationStatementSyntax)queryStatement).Declaration.Variables[0].Initializer.Value;
+            var queryConclusion = (QueryConclusionSyntax)queryExpression.Body.ContinuationOrConclusion;
+            var symbol = speculativeModel.GetDeclaredSymbol(queryConclusion);
+
+            Assert.NotNull(symbol);
+            Assert.Equal("w", symbol.Name);
+            Assert.Equal(SymbolKind.QueryConclusionVariable, symbol.Kind);
         }
 
         [Fact]

@@ -91,6 +91,16 @@ namespace Microsoft.CodeAnalysis.CSharp
             return null;
         }
 
+        public override BoundNode VisitQueryConclusionVariable(BoundQueryConclusionVariable node)
+        {
+            if (IsInside && !RegionContains(node.QueryConclusionVariableSymbol.Locations[0].SourceSpan))
+            {
+                _dataFlowsIn.Add(node.QueryConclusionVariableSymbol);
+            }
+
+            return null;
+        }
+
         protected override void ReportUnassigned(Symbol symbol, SyntaxNode node, int slot, bool skipIfUseBeforeDeclaration)
         {
             // TODO: how to handle fields of structs?

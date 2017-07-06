@@ -35,7 +35,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             : base(next, (next.Flags | additionalFlags) & ~BinderFlags.AllClearedAtExecutableCodeBoundary)
         {
             Debug.Assert((object)memberSymbol == null ||
-                         (memberSymbol.Kind != SymbolKind.Local && memberSymbol.Kind != SymbolKind.RangeVariable && memberSymbol.Kind != SymbolKind.Parameter));
+                         (memberSymbol.Kind != SymbolKind.Local && memberSymbol.Kind != SymbolKind.RangeVariable && memberSymbol.Kind != SymbolKind.QueryConclusionVariable && memberSymbol.Kind != SymbolKind.Parameter));
 
             _memberSymbol = memberSymbol;
             _root = root;

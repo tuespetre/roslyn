@@ -527,4 +527,8 @@
   <data name="Remove_unused_function" xml:space="preserve">
     <value>Remove unused function</value>
   </data>
+  <data name="yield_into_clause" xml:space="preserve">
+    <value>yield into clause</value>
+    <comment>{Locked}</comment>
+  </data>
 </root>

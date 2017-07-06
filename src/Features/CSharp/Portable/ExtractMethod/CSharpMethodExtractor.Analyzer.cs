@@ -99,6 +99,19 @@ namespace Microsoft.CodeAnalysis.CSharp.ExtractMethod
                     : info.ConvertedType;
             }
 
+            protected override ITypeSymbol GetQueryConclusionVariableType(SemanticModel model, IQueryConclusionVariableSymbol symbol)
+            {
+                var info = model.GetSpeculativeTypeInfo(this.SelectionResult.FinalSpan.Start, SyntaxFactory.ParseName(symbol.Name), SpeculativeBindingOption.BindAsExpression);
+                if (Microsoft.CodeAnalysis.Shared.Extensions.ISymbolExtensions.IsErrorType(info.Type))
+                {
+                    return null;
+                }
+
+                return info.Type == null || info.Type.SpecialType == Microsoft.CodeAnalysis.SpecialType.System_Object
+                    ? info.Type
+                    : info.ConvertedType;
+            }
+
             protected override Tuple<SyntaxNode, SyntaxNode> GetFlowAnalysisNodeRange()
             {
                 var csharpSelectionResult = this.SelectionResult as CSharpSelectionResult;

@@ -5620,5 +5620,78 @@ class C
                 SymbolDisplayPartKind.ParameterName, // c
                 SymbolDisplayPartKind.Punctuation); // )
         }
+
+        [Fact]
+        public void RangeVariable()
+        {
+            var srcTree = SyntaxFactory.ParseSyntaxTree(@"
+using System.Linq;
+
+class C
+{
+    void M()
+    {
+        var q = from x in new[] { 1, 2, 3 } where x < 3 select x;
+    }
+}");
+            var root = srcTree.GetRoot();
+            var comp = CreateStandardCompilation(srcTree, references: new[] { LinqAssemblyRef });
+
+            var semanticModel = comp.GetSemanticModel(comp.SyntaxTrees.Single());
+            var queryExpression = root.DescendantNodes().OfType<QueryExpressionSyntax>().First();
+            var fromClauseRangeVariableSymbol = Assert.IsType<RangeVariableSymbol>(
+                semanticModel.GetDeclaredSymbol(queryExpression.FromClause));
+
+            Verify(
+                fromClauseRangeVariableSymbol.ToMinimalDisplayParts(
+                    semanticModel, 
+                    queryExpression.FromClause.Identifier.SpanStart, 
+                    SymbolDisplayFormat.MinimallyQualifiedFormat),
+                "int x",
+                SymbolDisplayPartKind.Keyword, //int
+                SymbolDisplayPartKind.Space,
+                SymbolDisplayPartKind.RangeVariableName); // x
+        }
+
+        [Fact]
+        public void QueryConclusionVariable()
+        {
+            var srcTree = SyntaxFactory.ParseSyntaxTree(@"
+using System.Linq;
+
+class C
+{
+    void M()
+    {
+        var q = from x in new[] { 1, 2, 3 } where x < 3 select x yield into xs do xs.ToArray();
+    }
+}");
+            var root = srcTree.GetRoot();
+            var comp = CreateStandardCompilation(srcTree, references: new[] { LinqAssemblyRef });
+
+            var semanticModel = comp.GetSemanticModel(comp.SyntaxTrees.Single());
+            var queryConclusion = root.DescendantNodes().OfType<QueryConclusionSyntax>().First();
+            var queryConclusionVariableSymbol = Assert.IsType<QueryConclusionVariableSymbol>(
+                semanticModel.GetDeclaredSymbol(queryConclusion));
+
+            Verify(
+                queryConclusionVariableSymbol.ToMinimalDisplayParts(
+                    semanticModel, 
+                    queryConclusion.Identifier.SpanStart, 
+                    SymbolDisplayFormat.MinimallyQualifiedFormat),
+                "System.Collections.Generic.IEnumerable<int> xs",
+                SymbolDisplayPartKind.NamespaceName, // System
+                SymbolDisplayPartKind.Punctuation, // .
+                SymbolDisplayPartKind.NamespaceName, // Collections
+                SymbolDisplayPartKind.Punctuation, // .
+                SymbolDisplayPartKind.NamespaceName, // Generic
+                SymbolDisplayPartKind.Punctuation, // .
+                SymbolDisplayPartKind.InterfaceName, // IEnumerable
+                SymbolDisplayPartKind.Punctuation, // <
+                SymbolDisplayPartKind.Keyword, // int
+                SymbolDisplayPartKind.Punctuation, // >
+                SymbolDisplayPartKind.Space,
+                SymbolDisplayPartKind.QueryConclusionVariableName); // x
+        }
     }
 }

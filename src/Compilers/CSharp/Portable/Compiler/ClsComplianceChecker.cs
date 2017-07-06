@@ -1092,6 +1092,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             Debug.Assert(symbol.Kind != SymbolKind.Namespace);
             Debug.Assert(symbol.Kind != SymbolKind.Parameter);
             Debug.Assert(symbol.Kind != SymbolKind.RangeVariable);
+            Debug.Assert(symbol.Kind != SymbolKind.QueryConclusionVariable);
 
             Compliance compliance;
             if (_declaredOrInheritedCompliance.TryGetValue(symbol, out compliance))

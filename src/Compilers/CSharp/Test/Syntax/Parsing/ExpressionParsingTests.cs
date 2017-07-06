@@ -1447,7 +1447,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.Equal(SyntaxKind.SelectKeyword, ss.SelectKeyword.Kind());
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("b", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1480,7 +1480,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("b", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1514,24 +1514,74 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("b", ss.Expression.ToString());
 
-            Assert.NotNull(qs.Body.Continuation);
-            Assert.Equal(SyntaxKind.QueryContinuation, qs.Body.Continuation.Kind());
-            Assert.NotNull(qs.Body.Continuation.IntoKeyword);
-            Assert.Equal(SyntaxKind.IntoKeyword, qs.Body.Continuation.IntoKeyword.Kind());
-            Assert.False(qs.Body.Continuation.IntoKeyword.IsMissing);
-            Assert.Equal("c", qs.Body.Continuation.Identifier.ToString());
+            Assert.NotNull(qs.Body.ContinuationOrConclusion);
+            Assert.Equal(SyntaxKind.QueryContinuation, qs.Body.ContinuationOrConclusion.Kind());
+            var qc = (QueryContinuationSyntax)qs.Body.ContinuationOrConclusion;
+            Assert.NotNull(qc.IntoKeyword);
+            Assert.Equal(SyntaxKind.IntoKeyword, qc.IntoKeyword.Kind());
+            Assert.False(qc.IntoKeyword.IsMissing);
+            Assert.Equal("c", qc.Identifier.ToString());
 
-            Assert.NotNull(qs.Body.Continuation.Body);
-            Assert.Equal(0, qs.Body.Continuation.Body.Clauses.Count);
-            Assert.NotNull(qs.Body.Continuation.Body.SelectOrGroup);
+            Assert.NotNull(qc.Body);
+            Assert.Equal(0, qc.Body.Clauses.Count);
+            Assert.NotNull(qc.Body.SelectOrGroup);
 
-            Assert.Equal(SyntaxKind.SelectClause, qs.Body.Continuation.Body.SelectOrGroup.Kind());
-            ss = (SelectClauseSyntax)qs.Body.Continuation.Body.SelectOrGroup;
+            Assert.Equal(SyntaxKind.SelectClause, qc.Body.SelectOrGroup.Kind());
+            ss = (SelectClauseSyntax)qc.Body.SelectOrGroup;
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("d", ss.Expression.ToString());
 
-            Assert.Null(qs.Body.Continuation.Body.Continuation);
+            Assert.Null(qc.Body.ContinuationOrConclusion);
+        }
+
+        [Fact]
+        public void TestFromSelectYieldIntoSelect()
+        {
+            var text = "from a in A select b yield into c do c";
+            var expr = this.ParseExpression(text);
+
+            Assert.NotNull(expr);
+            Assert.Equal(SyntaxKind.QueryExpression, expr.Kind());
+            Assert.Equal(text, expr.ToString());
+            Assert.Equal(0, expr.Errors().Length);
+
+            var qs = (QueryExpressionSyntax)expr;
+            Assert.Equal(0, qs.Body.Clauses.Count);
+            Assert.Equal(SyntaxKind.FromClause, qs.FromClause.Kind());
+            Assert.Equal(SyntaxKind.SelectClause, qs.Body.SelectOrGroup.Kind());
+
+            var fs = (FromClauseSyntax)qs.FromClause;
+            Assert.NotNull(fs.FromKeyword);
+            Assert.False(fs.FromKeyword.IsMissing);
+            Assert.Null(fs.Type);
+            Assert.Equal("a", fs.Identifier.ToString());
+            Assert.NotNull(fs.InKeyword);
+            Assert.False(fs.InKeyword.IsMissing);
+            Assert.Equal("A", fs.Expression.ToString());
+
+            Assert.Equal(SyntaxKind.SelectClause, qs.Body.SelectOrGroup.Kind());
+            var ss = (SelectClauseSyntax)qs.Body.SelectOrGroup;
+            Assert.NotNull(ss.SelectKeyword);
+            Assert.False(ss.SelectKeyword.IsMissing);
+            Assert.Equal("b", ss.Expression.ToString());
+
+            Assert.NotNull(qs.Body.ContinuationOrConclusion);
+            Assert.Equal(SyntaxKind.QueryConclusion, qs.Body.ContinuationOrConclusion.Kind());
+            var qc = (QueryConclusionSyntax)qs.Body.ContinuationOrConclusion;
+            Assert.NotNull(qc.YieldKeyword);
+            Assert.Equal(SyntaxKind.YieldKeyword, qc.YieldKeyword.Kind());
+            Assert.False(qc.YieldKeyword.IsMissing);
+            Assert.NotNull(qc.IntoKeyword);
+            Assert.Equal(SyntaxKind.IntoKeyword, qc.IntoKeyword.Kind());
+            Assert.False(qc.IntoKeyword.IsMissing);
+            Assert.Equal("c", qc.Identifier.ToString());
+            Assert.NotNull(qc.DoKeyword);
+            Assert.Equal(SyntaxKind.DoKeyword, qc.DoKeyword.Kind());
+            Assert.False(qc.DoKeyword.IsMissing);
+            Assert.NotNull(qc.Expression);
+            Assert.Equal(SyntaxKind.IdentifierName, qc.Expression.Kind());
+            Assert.Equal("c", qc.Expression.ToString());
         }
 
         [Fact]
@@ -1571,7 +1621,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1614,7 +1664,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1659,7 +1709,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1704,7 +1754,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1753,7 +1803,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1801,7 +1851,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -1849,7 +1899,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         public void TestFromGroupBy()
@@ -1888,7 +1938,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(gbs.ByExpression);
             Assert.Equal("c", gbs.ByExpression.ToString());
 
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         public void TestFromGroupByIntoSelect()
@@ -1925,23 +1975,76 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(gbs.ByExpression);
             Assert.Equal("c", gbs.ByExpression.ToString());
 
-            Assert.NotNull(qs.Body.Continuation);
-            Assert.Equal(SyntaxKind.QueryContinuation, qs.Body.Continuation.Kind());
-            Assert.NotNull(qs.Body.Continuation.IntoKeyword);
-            Assert.False(qs.Body.Continuation.IntoKeyword.IsMissing);
-            Assert.Equal("d", qs.Body.Continuation.Identifier.ToString());
+            Assert.NotNull(qs.Body.ContinuationOrConclusion);
+            Assert.Equal(SyntaxKind.QueryContinuation, qs.Body.ContinuationOrConclusion.Kind());
+            var qc = (QueryContinuationSyntax)qs.Body.ContinuationOrConclusion;
+            Assert.NotNull(qc.IntoKeyword);
+            Assert.False(qc.IntoKeyword.IsMissing);
+            Assert.Equal("d", qc.Identifier.ToString());
 
-            Assert.NotNull(qs.Body.Continuation);
-            Assert.Equal(0, qs.Body.Continuation.Body.Clauses.Count);
-            Assert.NotNull(qs.Body.Continuation.Body.SelectOrGroup);
+            Assert.NotNull(qc);
+            Assert.Equal(0, qc.Body.Clauses.Count);
+            Assert.NotNull(qc.Body.SelectOrGroup);
 
-            Assert.Equal(SyntaxKind.SelectClause, qs.Body.Continuation.Body.SelectOrGroup.Kind());
-            var ss = (SelectClauseSyntax)qs.Body.Continuation.Body.SelectOrGroup;
+            Assert.Equal(SyntaxKind.SelectClause, qc.Body.SelectOrGroup.Kind());
+            var ss = (SelectClauseSyntax)qc.Body.SelectOrGroup;
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("e", ss.Expression.ToString());
 
-            Assert.Null(qs.Body.Continuation.Body.Continuation);
+            Assert.Null(qc.Body.ContinuationOrConclusion);
+        }
+
+        public void TestFromGroupByYieldIntoSelect()
+        {
+            var text = "from a in A group b by c yield into d do d";
+            var expr = this.ParseExpression(text);
+
+            Assert.NotNull(expr);
+            Assert.Equal(SyntaxKind.QueryExpression, expr.Kind());
+            Assert.Equal(text, expr.ToString());
+            Assert.Equal(0, expr.Errors().Length);
+
+            var qs = (QueryExpressionSyntax)expr;
+            Assert.Equal(1, qs.Body.Clauses.Count);
+            Assert.Equal(SyntaxKind.FromClause, qs.Body.Clauses[0].Kind());
+
+            var fs = (FromClauseSyntax)qs.Body.Clauses[0];
+            Assert.NotNull(fs.FromKeyword);
+            Assert.False(fs.FromKeyword.IsMissing);
+            Assert.Null(fs.Type);
+            Assert.Equal("a", fs.Identifier.ToString());
+            Assert.NotNull(fs.InKeyword);
+            Assert.False(fs.InKeyword.IsMissing);
+            Assert.Equal("A", fs.Expression.ToString());
+
+            Assert.Equal(SyntaxKind.GroupClause, qs.Body.SelectOrGroup.Kind());
+            var gbs = (GroupClauseSyntax)qs.Body.SelectOrGroup;
+            Assert.NotNull(gbs.GroupKeyword);
+            Assert.False(gbs.GroupKeyword.IsMissing);
+            Assert.NotNull(gbs.GroupExpression);
+            Assert.Equal("b", gbs.GroupExpression.ToString());
+            Assert.NotNull(gbs.ByKeyword);
+            Assert.False(gbs.ByKeyword.IsMissing);
+            Assert.NotNull(gbs.ByExpression);
+            Assert.Equal("c", gbs.ByExpression.ToString());
+
+            Assert.NotNull(qs.Body.ContinuationOrConclusion);
+            Assert.Equal(SyntaxKind.QueryConclusion, qs.Body.ContinuationOrConclusion.Kind());
+            var qc = (QueryConclusionSyntax)qs.Body.ContinuationOrConclusion;
+            Assert.NotNull(qc.YieldKeyword);
+            Assert.Equal(SyntaxKind.YieldKeyword, qc.YieldKeyword.Kind());
+            Assert.False(qc.YieldKeyword.IsMissing);
+            Assert.NotNull(qc.IntoKeyword);
+            Assert.Equal(SyntaxKind.IntoKeyword, qc.IntoKeyword.Kind());
+            Assert.False(qc.IntoKeyword.IsMissing);
+            Assert.Equal("c", qc.Identifier.ToString());
+            Assert.NotNull(qc.DoKeyword);
+            Assert.Equal(SyntaxKind.DoKeyword, qc.DoKeyword.Kind());
+            Assert.False(qc.DoKeyword.IsMissing);
+            Assert.NotNull(qc.Expression);
+            Assert.Equal(SyntaxKind.IdentifierName, qc.Expression.Kind());
+            Assert.Equal("d", qc.Expression.ToString());
         }
 
         [Fact]
@@ -1997,7 +2100,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -2052,7 +2155,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("c", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]
@@ -2109,7 +2212,7 @@ namespace Microsoft.CodeAnalysis.CSharp.UnitTests
             Assert.NotNull(ss.SelectKeyword);
             Assert.False(ss.SelectKeyword.IsMissing);
             Assert.Equal("d", ss.Expression.ToString());
-            Assert.Null(qs.Body.Continuation);
+            Assert.Null(qs.Body.ContinuationOrConclusion);
         }
 
         [Fact]

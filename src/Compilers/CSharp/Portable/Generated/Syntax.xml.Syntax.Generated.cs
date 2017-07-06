@@ -5241,7 +5241,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
   {
     private SyntaxNode clauses;
     private SelectOrGroupClauseSyntax selectOrGroup;
-    private QueryContinuationSyntax continuation;
+    private QueryContinuationOrConclusionSyntax continuationOrConclusion;
 
     internal QueryBodySyntax(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.CSharpSyntaxNode green, SyntaxNode parent, int position)
         : base(green, parent, position)
@@ -5264,11 +5264,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         }
     }
 
-    public QueryContinuationSyntax Continuation 
+    public QueryContinuationOrConclusionSyntax ContinuationOrConclusion 
     {
         get
         {
-            return this.GetRed(ref this.continuation, 2);
+            return this.GetRed(ref this.continuationOrConclusion, 2);
         }
     }
 
@@ -5278,7 +5278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         {
             case 0: return this.GetRedAtZero(ref this.clauses);
             case 1: return this.GetRed(ref this.selectOrGroup, 1);
-            case 2: return this.GetRed(ref this.continuation, 2);
+            case 2: return this.GetRed(ref this.continuationOrConclusion, 2);
             default: return null;
         }
     }
@@ -5288,7 +5288,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         {
             case 0: return this.clauses;
             case 1: return this.selectOrGroup;
-            case 2: return this.continuation;
+            case 2: return this.continuationOrConclusion;
             default: return null;
         }
     }
@@ -5303,11 +5303,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
         visitor.VisitQueryBody(this);
     }
 
-    public QueryBodySyntax Update(SyntaxList<QueryClauseSyntax> clauses, SelectOrGroupClauseSyntax selectOrGroup, QueryContinuationSyntax continuation)
+    public QueryBodySyntax Update(SyntaxList<QueryClauseSyntax> clauses, SelectOrGroupClauseSyntax selectOrGroup, QueryContinuationOrConclusionSyntax continuationOrConclusion)
     {
-        if (clauses != this.Clauses || selectOrGroup != this.SelectOrGroup || continuation != this.Continuation)
+        if (clauses != this.Clauses || selectOrGroup != this.SelectOrGroup || continuationOrConclusion != this.ContinuationOrConclusion)
         {
-            var newNode = SyntaxFactory.QueryBody(clauses, selectOrGroup, continuation);
+            var newNode = SyntaxFactory.QueryBody(clauses, selectOrGroup, continuationOrConclusion);
             var annotations = this.GetAnnotations();
             if (annotations != null && annotations.Length > 0)
                return newNode.WithAnnotations(annotations);
@@ -5319,17 +5319,17 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
 
     public QueryBodySyntax WithClauses(SyntaxList<QueryClauseSyntax> clauses)
     {
-        return this.Update(clauses, this.SelectOrGroup, this.Continuation);
+        return this.Update(clauses, this.SelectOrGroup, this.ContinuationOrConclusion);
     }
 
     public QueryBodySyntax WithSelectOrGroup(SelectOrGroupClauseSyntax selectOrGroup)
     {
-        return this.Update(this.Clauses, selectOrGroup, this.Continuation);
+        return this.Update(this.Clauses, selectOrGroup, this.ContinuationOrConclusion);
     }
 
-    public QueryBodySyntax WithContinuation(QueryContinuationSyntax continuation)
+    public QueryBodySyntax WithContinuationOrConclusion(QueryContinuationOrConclusionSyntax continuationOrConclusion)
     {
-        return this.Update(this.Clauses, this.SelectOrGroup, continuation);
+        return this.Update(this.Clauses, this.SelectOrGroup, continuationOrConclusion);
     }
 
     public QueryBodySyntax AddClauses(params QueryClauseSyntax[] items)
@@ -6203,7 +6203,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
     }
   }
 
-  public sealed partial class QueryContinuationSyntax : CSharpSyntaxNode
+  public abstract partial class QueryContinuationOrConclusionSyntax : CSharpSyntaxNode
+  {
+    internal QueryContinuationOrConclusionSyntax(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.CSharpSyntaxNode green, SyntaxNode parent, int position)
+      : base(green, parent, position)
+    {
+    }
+  }
+
+  public sealed partial class QueryContinuationSyntax : QueryContinuationOrConclusionSyntax
   {
     private QueryBodySyntax body;
 
@@ -6290,6 +6298,111 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
     public QueryContinuationSyntax AddBodyClauses(params QueryClauseSyntax[] items)
     {
         return this.WithBody(this.Body.WithClauses(this.Body.Clauses.AddRange(items)));
+    }
+  }
+
+  public sealed partial class QueryConclusionSyntax : QueryContinuationOrConclusionSyntax
+  {
+    private ExpressionSyntax expression;
+
+    internal QueryConclusionSyntax(Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.CSharpSyntaxNode green, SyntaxNode parent, int position)
+        : base(green, parent, position)
+    {
+    }
+
+    public SyntaxToken YieldKeyword 
+    {
+      get { return new SyntaxToken(this, ((Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryConclusionSyntax)this.Green).yieldKeyword, this.Position, 0); }
+    }
+
+    public SyntaxToken IntoKeyword 
+    {
+      get { return new SyntaxToken(this, ((Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryConclusionSyntax)this.Green).intoKeyword, this.GetChildPosition(1), this.GetChildIndex(1)); }
+    }
+
+    /// <summary>Gets the identifier.</summary>
+    public SyntaxToken Identifier 
+    {
+      get { return new SyntaxToken(this, ((Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryConclusionSyntax)this.Green).identifier, this.GetChildPosition(2), this.GetChildIndex(2)); }
+    }
+
+    public SyntaxToken DoKeyword 
+    {
+      get { return new SyntaxToken(this, ((Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax.QueryConclusionSyntax)this.Green).doKeyword, this.GetChildPosition(3), this.GetChildIndex(3)); }
+    }
+
+    public ExpressionSyntax Expression 
+    {
+        get
+        {
+            return this.GetRed(ref this.expression, 4);
+        }
+    }
+
+    internal override SyntaxNode GetNodeSlot(int index)
+    {
+        switch (index)
+        {
+            case 4: return this.GetRed(ref this.expression, 4);
+            default: return null;
+        }
+    }
+    internal override SyntaxNode GetCachedSlot(int index)
+    {
+        switch (index)
+        {
+            case 4: return this.expression;
+            default: return null;
+        }
+    }
+
+    public override TResult Accept<TResult>(CSharpSyntaxVisitor<TResult> visitor)
+    {
+        return visitor.VisitQueryConclusion(this);
+    }
+
+    public override void Accept(CSharpSyntaxVisitor visitor)
+    {
+        visitor.VisitQueryConclusion(this);
+    }
+
+    public QueryConclusionSyntax Update(SyntaxToken yieldKeyword, SyntaxToken intoKeyword, SyntaxToken identifier, SyntaxToken doKeyword, ExpressionSyntax expression)
+    {
+        if (yieldKeyword != this.YieldKeyword || intoKeyword != this.IntoKeyword || identifier != this.Identifier || doKeyword != this.DoKeyword || expression != this.Expression)
+        {
+            var newNode = SyntaxFactory.QueryConclusion(yieldKeyword, intoKeyword, identifier, doKeyword, expression);
+            var annotations = this.GetAnnotations();
+            if (annotations != null && annotations.Length > 0)
+               return newNode.WithAnnotations(annotations);
+            return newNode;
+        }
+
+        return this;
+    }
+
+    public QueryConclusionSyntax WithYieldKeyword(SyntaxToken yieldKeyword)
+    {
+        return this.Update(yieldKeyword, this.IntoKeyword, this.Identifier, this.DoKeyword, this.Expression);
+    }
+
+    public QueryConclusionSyntax WithIntoKeyword(SyntaxToken intoKeyword)
+    {
+        return this.Update(this.YieldKeyword, intoKeyword, this.Identifier, this.DoKeyword, this.Expression);
+    }
+
+    public QueryConclusionSyntax WithIdentifier(SyntaxToken identifier)
+    {
+        return this.Update(this.YieldKeyword, this.IntoKeyword, identifier, this.DoKeyword, this.Expression);
+    }
+
+    public QueryConclusionSyntax WithDoKeyword(SyntaxToken doKeyword)
+    {
+        return this.Update(this.YieldKeyword, this.IntoKeyword, this.Identifier, doKeyword, this.Expression);
+    }
+
+    public QueryConclusionSyntax WithExpression(ExpressionSyntax expression)
+    {
+        return this.Update(this.YieldKeyword, this.IntoKeyword, this.Identifier, this.DoKeyword, expression);
     }
   }
 

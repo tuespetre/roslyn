@@ -104,5 +104,14 @@ $$");
           join $$
           from z in w"));
         }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestNotAtBeginningOfQueryConclusionExpression()
+        {
+            await VerifyAbsenceAsync(AddInsideMethod(
+@"var v = from x in y
+          select x yield into z
+          do $$"));
+        }
     }
 }

@@ -121,7 +121,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         private LocalBinderFactory(Symbol containingMemberOrLambda, SyntaxNode root, Binder enclosing, ArrayBuilder<SyntaxNode> methodsWithYields)
         {
             Debug.Assert((object)containingMemberOrLambda != null);
-            Debug.Assert(containingMemberOrLambda.Kind != SymbolKind.Local && containingMemberOrLambda.Kind != SymbolKind.RangeVariable && containingMemberOrLambda.Kind != SymbolKind.Parameter);
+            Debug.Assert(
+                containingMemberOrLambda.Kind != SymbolKind.Local &&
+                containingMemberOrLambda.Kind != SymbolKind.RangeVariable &&
+                containingMemberOrLambda.Kind != SymbolKind.QueryConclusionVariable &&
+                containingMemberOrLambda.Kind != SymbolKind.Parameter);
 
             _map = new SmallDictionary<SyntaxNode, Binder>(ReferenceEqualityComparer.Instance);
             _containingMemberOrLambda = containingMemberOrLambda;
@@ -810,7 +814,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
             }
 
-            Visit(node.Continuation);
+            Visit(node.ContinuationOrConclusion);
         }
     }
 }

@@ -1193,7 +1193,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private static ErrorCode GetRangeLvalueError(BindValueKind kind)
+        private static ErrorCode GetRangeVariableLvalueError(BindValueKind kind)
         {
             switch (kind)
             {
@@ -1207,6 +1207,25 @@ namespace Microsoft.CodeAnalysis.CSharp
                     return ErrorCode.ERR_InvalidAddrOp;
                 case BindValueKind.RefReturn:
                     return ErrorCode.ERR_RefReturnRangeVariable;
+                default:
+                    throw ExceptionUtilities.UnexpectedValue(kind);
+            }
+        }
+
+        private static ErrorCode GetQueryConclusionVariableLvalueError(BindValueKind kind)
+        {
+            switch (kind)
+            {
+                case BindValueKind.Assignment:
+                case BindValueKind.CompoundAssignment:
+                case BindValueKind.IncrementDecrement:
+                    return ErrorCode.ERR_QueryConclusionVariableReadOnly;
+                case BindValueKind.RefOrOut:
+                    return ErrorCode.ERR_QueryConclusionVariableRefOrOut;
+                case BindValueKind.AddressOf:
+                    return ErrorCode.ERR_InvalidAddrOp;
+                case BindValueKind.RefReturn:
+                    return ErrorCode.ERR_QueryConclusionVariableRefReturn;
                 default:
                     throw ExceptionUtilities.UnexpectedValue(kind);
             }
@@ -1630,10 +1649,17 @@ namespace Microsoft.CodeAnalysis.CSharp
                 return true;
             }
 
-            var queryref = expr as BoundRangeVariable;
-            if (queryref != null)
+            var rangeVariable = expr as BoundRangeVariable;
+            if (rangeVariable != null)
             {
-                Error(diagnostics, GetRangeLvalueError(kind), node, queryref.RangeVariableSymbol.Name);
+                Error(diagnostics, GetRangeVariableLvalueError(kind), node, rangeVariable.RangeVariableSymbol.Name);
+                return false;
+            }
+
+            var queryConclusionVariable = expr as BoundQueryConclusionVariable;
+            if (queryConclusionVariable != null)
+            {
+                Error(diagnostics, GetQueryConclusionVariableLvalueError(kind), node, queryConclusionVariable.QueryConclusionVariableSymbol.Name);
                 return false;
             }
 

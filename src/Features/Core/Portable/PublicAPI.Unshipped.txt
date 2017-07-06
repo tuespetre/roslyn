@@ -1,3 +1,4 @@
 Microsoft.CodeAnalysis.Completion.CompletionTriggerKind.Invoke = 0 -> Microsoft.CodeAnalysis.Completion.CompletionTriggerKind
 Microsoft.CodeAnalysis.Completion.CompletionTriggerKind.InvokeAndCommitIfUnique = 4 -> Microsoft.CodeAnalysis.Completion.CompletionTriggerKind
+const Microsoft.CodeAnalysis.TextTags.QueryConclusionVariable = "QueryConclusionVariable" -> string
 static readonly Microsoft.CodeAnalysis.Completion.CompletionTrigger.Invoke -> Microsoft.CodeAnalysis.Completion.CompletionTrigger

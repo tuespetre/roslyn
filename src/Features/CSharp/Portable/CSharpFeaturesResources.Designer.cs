@@ -1217,6 +1217,15 @@ namespace Microsoft.CodeAnalysis.CSharp {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to yield into clause.
+        /// </summary>
+        internal static string yield_into_clause {
+            get {
+                return ResourceManager.GetString("yield_into_clause", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to yield statement.
         /// </summary>
         internal static string yield_statement {

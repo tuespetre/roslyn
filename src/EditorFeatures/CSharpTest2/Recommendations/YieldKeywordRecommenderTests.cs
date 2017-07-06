@@ -94,5 +94,21 @@ $$"));
   $$
 }");
         }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestAfterSelectClauseIdentifier()
+        {
+            await VerifyKeywordAsync(AddInsideMethod(
+@"var v = from x in y
+          select x $$"));
+        }
+
+        [Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
+        public async Task TestAfterGroupClauseIdentifier()
+        {
+            await VerifyKeywordAsync(AddInsideMethod(
+@"var v = from x in y
+          group x by z $$"));
+        }
     }
 }
